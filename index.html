@@ -29,13 +29,7 @@ a{color:var(--link);text-underline-offset:3px}
 .brand i{width:14px;height:14px;background:var(--cobalt);border-radius:50% 50% 50% 2px}
 h1{font-size:clamp(1.9rem,6.4vw,3rem);line-height:1.05;letter-spacing:-.025em;font-weight:800;margin:0 0 10px;max-width:20ch}
 .sub{color:var(--mut);margin:0;max-width:46ch;font-size:1rem}
-.hero-ask{margin:18px 0 0;background:var(--surface);color:var(--ink);border:1.5px solid var(--line);border-left:5px solid var(--cobalt);border-radius:6px 16px 16px 6px;padding:12px 16px}
-.hero-ask .q{font:600 1.05rem/1.35 "Bricolage Grotesque",sans-serif;min-height:4.1em}
-.hero-ask .q::after{content:"";display:inline-block;width:2px;height:1em;margin-left:3px;background:currentColor;vertical-align:-.12em;animation:caret 1s steps(1) infinite}
 @keyframes caret{50%{opacity:0}}
-.hero-meta{display:flex;gap:6px 16px;align-items:center;flex-wrap:wrap;margin:8px 4px 0;color:var(--mut);font-size:15px}
-.hero-meta b{color:var(--ink)}
-.link{background:none;border:0;padding:0;margin:0;color:var(--link);font:600 15px Figtree,sans-serif;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 
 .thread{margin-top:30px}
 .turn{margin:0 0 26px}
@@ -52,7 +46,7 @@ select:focus,input[type=text]:focus,textarea:focus{border-color:var(--cobalt)}
 .drop.has{border-style:solid;border-color:var(--mintd)}
 .drop svg{flex:none;width:34px;height:42px;color:var(--cobalt)}
 .drop b{display:block;font-weight:700;overflow-wrap:anywhere}
-.chips span{display:inline-block;margin:10px 6px 0 0;padding:2px 9px;border-radius:6px;background:var(--mint);color:var(--on-mint);font:600 13.5px Figtree,sans-serif}
+.chips{margin-bottom:8px}.skill{display:inline-block;margin:0 6px 6px 0;padding:4px 11px;border-radius:99px;background:var(--mint);color:var(--on-mint);font:600 13.5px Figtree,sans-serif}.skill.off{background:transparent;color:var(--mut);text-decoration:line-through;border:1.5px solid var(--line)}
 .quick{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 6px}
 .chip{margin:0;padding:8px 14px;border:1.5px solid var(--line);border-radius:99px;background:var(--surface);color:var(--ink);font:600 14.5px Figtree,sans-serif;cursor:pointer}
 .chip:hover{border-color:var(--ink)}
@@ -133,8 +127,7 @@ ul.tips,#report ul{margin:6px 0;padding-left:20px}
 .fix{margin:6px 0;color:var(--warn);font-size:14.5px}
 .aiout{margin-top:10px}
 .foot{margin-top:64px;color:var(--mut);font-size:14px;max-width:52ch}
-@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.hero-ask .q::after{animation:none}}
-@media print{.brand,header,#setup,#session,#plan,button,.foot{display:none}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}@media print{.brand,header,#setup,#session,#plan,button,.foot{display:none}}
 </style>
 </head>
 <body>
@@ -144,8 +137,6 @@ ul.tips,#report ul{margin:6px 0;padding-left:20px}
 <header>
   <h1>Rehearse the interview before it happens.</h1>
   <p class="sub">Tell us what you do. We build questions, hands-on tasks and feedback for your exact job, whatever it is.</p>
-  <div class="hero-ask" aria-live="off"><div class="q" id="heroQ"></div></div>
-  <div class="hero-meta"><span>Asked of <b id="heroWho"></b></span><button type="button" class="link" id="heroGo"></button></div>
 </header>
 
 <section class="thread" id="setup">
@@ -157,7 +148,6 @@ ul.tips,#report ul{margin:6px 0;padding-left:20px}
         <svg viewBox="0 0 34 42" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" aria-hidden="true"><path d="M5 2h16l9 9v29H5z"/><path d="M21 2v9h9"/><path d="M11 20h13M11 26h13M11 32h8" stroke-linecap="round"/></svg>
         <span><b id="fileName">Choose or drop your resume</b><span class="note">PDF, DOCX or TXT. Optional, and it stays in your browser.</span></span>
       </label>
-      <div class="chips" id="skills"></div>
     </div>
   </div>
 
@@ -169,6 +159,10 @@ ul.tips,#report ul{margin:6px 0;padding-left:20px}
         <div><label for="field">Field</label><select id="field"></select></div>
         <div><label for="roleIn">Job title</label><input type="text" id="roleIn" maxlength="60" list="titles" placeholder="Type any job title"><datalist id="titles"></datalist></div>
       </div>
+      <label for="skillAdd">Your main skills (optional)</label>
+      <div class="chips" id="skills"></div>
+      <div class="note hide" id="skillNote">These come from the words in your resume. Tap a skill to switch it off or on. Crossed-out ones were only mentioned in passing. Questions follow the skills that stay on.</div>
+      <input type="text" id="skillAdd" maxlength="40" placeholder="Type a skill such as C++, Verilog or contract law and press Enter">
       <div class="note" id="fieldNote">Not in the list? Type your job title. We build questions from the title itself.</div>
     </div>
   </div>
@@ -292,6 +286,34 @@ const BANK = {
   basic:["What is overfitting and how do you avoid it?","Supervised vs unsupervised learning?","What is a train/validation/test split?"],
   mid:["How do you choose evaluation metrics for an imbalanced problem?","Explain bias-variance trade-off.","How do you do feature engineering?"],
   senior:["How would you take a model from notebook to production and monitor drift?","How do you design an experimentation / A-B testing framework?","How do you decide build vs buy for ML capabilities?"]}},
+ "C / C++":{k:["c++","c/c++","embedded c","c programming","ansi c","stl","cmake","gcc","qt","boost"],q:{
+  basic:["What is the difference between a pointer and a reference in C++?","What is the difference between stack and heap memory, and what happens if you forget to free memory?","Explain the difference between struct and class in C++, and between const and constexpr."],
+  mid:["Explain RAII and how smart pointers (unique_ptr, shared_ptr) prevent leaks.","What is a virtual function and how does a vtable work? Why make a destructor virtual?","How do move semantics work, and when is a copy avoided?","How do you find and fix a segmentation fault or a data race?"],
+  senior:["How would you design a low-latency, thread-safe component in C++ and avoid false sharing and lock contention?","How do you manage memory layout and cache behaviour for performance-critical code?","How do you keep a large C++ codebase buildable and safe (undefined behaviour, sanitizers, static analysis, ABI)?"]}},
+ "Go":{k:["golang","go lang","goroutine"],q:{
+  basic:["What is a goroutine and how is it different from a thread?","How does Go handle errors?","What is the difference between a slice and an array?"],
+  mid:["How do channels and the select statement work?","How do you use context for cancellation and timeouts?","How do you avoid goroutine leaks?"],
+  senior:["How would you design a high-throughput concurrent service in Go?","How do you profile Go with pprof and tune the garbage collector?","How do you structure a large Go service for testing and maintainability?"]}},
+ "PHP / Laravel":{k:["php","laravel","symfony","wordpress"],q:{
+  basic:["What is the difference between include and require in PHP?","How do sessions and cookies work in PHP?","What is Composer?"],
+  mid:["How does Laravel's request lifecycle work?","How do you prevent SQL injection and XSS in PHP applications?","How do queues and jobs work in Laravel?"],
+  senior:["How would you scale a PHP application under heavy load?","How do you modernise a legacy PHP codebase safely?","How do you design caching for a PHP backend?"]}},
+ "Android / Kotlin":{k:["android","kotlin","jetpack compose"],q:{
+  basic:["What are the main Android components (Activity, Service, Broadcast Receiver, Content Provider)?","Explain the Activity lifecycle.","What is the difference between Kotlin and Java on Android?"],
+  mid:["How do coroutines and Flow work in Android?","How do you handle configuration changes and state?","How do you structure an app with MVVM and dependency injection?"],
+  senior:["How do you improve app startup time, memory and battery use?","How do you design offline-first sync on mobile?","How do you manage a large multi-module Android codebase?"]}},
+ "iOS / Swift":{k:["swift","swiftui","ios","objective-c","xcode"],q:{
+  basic:["What is the difference between a struct and a class in Swift?","What are optionals?","Explain the iOS app lifecycle."],
+  mid:["How does ARC manage memory and what is a retain cycle?","How do async/await and actors work in Swift?","How do you structure an app with MVVM or Combine?"],
+  senior:["How do you diagnose performance and memory problems with Instruments?","How do you architect a large modular iOS app?","How do you manage releases, feature flags and backwards compatibility?"]}},
+ "Rust":{k:["rust","cargo","tokio"],q:{
+  basic:["Explain ownership and borrowing in Rust.","What is the difference between String and &str?","How does Rust handle errors without exceptions?"],
+  mid:["What are lifetimes and when do you need to write them?","How do traits and generics work?","How does async work in Rust?"],
+  senior:["How do you design a safe abstraction over unsafe code?","How do you reduce allocations and improve performance?","How do you migrate a C or C++ component to Rust?"]}},
+ "Linux / Systems":{k:["linux","unix","bash","shell scripting","kernel","device driver","posix","systemd"],q:{
+  basic:["What is the difference between a process and a thread?","How do file permissions work in Linux?","What does a shell pipe do?"],
+  mid:["How does virtual memory work and what is paging?","How do you find which process is using high CPU or memory?","What are signals and how are they handled?"],
+  senior:["How do you debug a kernel panic or a hung system?","How do you tune a Linux system for latency or throughput?","How do you design inter-process communication for a system service?"]}},
  "C# / .NET":{k:["c#",".net","asp.net","dotnet"],q:{
   basic:["What is the CLR?","Value types vs reference types?","What is LINQ?"],
   mid:["Explain async/await in C#.","How does dependency injection work in ASP.NET Core?","What is Entity Framework and when to avoid it?"],
@@ -351,13 +373,30 @@ async function readFile(f){
 const kwRe = k => new RegExp("(^|[^a-z0-9])"+k.replace(/[.+#*()?\[\]\\|^$]/g,"\\$&")+"($|[^a-z0-9])","g");
 const hits = (low,k) => (low.match(kwRe(k))||[]).length;
 
+/* Words that appear in many resumes without meaning the person works in that area. */
+const WEAK = new Set(["testing","qa","automation","cloud","container","database","express","spring","oracle","s3","lambda","boost","qt","kernel","bash","unix","stl","gcc","cmake","wordpress","helm","cargo"]);
 function softwareSkills(low){
   const out=[];
   for(const [name,def] of Object.entries(BANK)){
-    let n=0; def.k.forEach(k=>n+=hits(low,k));
-    if(n) out.push({name,n});
+    let strong=0, weak=0;
+    def.k.forEach(k=>{ const h=hits(low,k); if(WEAK.has(k)) weak+=h; else strong+=h; });
+    const n=strong+weak; if(!n) continue;
+    /* switched on only with real evidence: a clear skill word, or a weak word used several times */
+    out.push({name,n,off:!(strong>=1||weak>=3)});
   }
   return out.sort((a,b)=>b.n-a.n);
+}
+/* Real project and achievement lines from the resume, used to ask about the person's own work */
+function projectLines(text){
+  const verb=/\b(built|developed|designed|led|implemented|migrated|optimi[sz]ed|delivered|managed|launched|created|drafted|handled|reduced|improved|architected|integrated|automated|negotiated|advised|worked on|responsible for)\b/i;
+  const seen=new Set(), out=[];
+  for(let l of String(text||"").split(/\r?\n/)){
+    l=l.replace(/^[\s\-*•·▪●○]+/,"").replace(/\s+/g," ").trim();
+    if(l.length<35||l.length>190||!verb.test(l)||/@|https?:|\+?\d[\d\s-]{8,}/.test(l)) continue;
+    const k=l.toLowerCase(); if(seen.has(k)) continue; seen.add(k); out.push(l.replace(/[.;:]+$/,""));
+    if(out.length>=8) break;
+  }
+  return out;
 }
 function skillsFor(low,id){
   if(!low) return [];
@@ -382,22 +421,38 @@ function levelSpec(y){
 }
 
 /* ---------- State ---------- */
-let ctx = {field:"general", skills:[], years:0, text:""};
+let ctx = {field:"general", skills:[], all:[], off:new Set(), years:0, text:""};
 let plan=[], flat=[], idx=0, timerId=null, t0=0, statusMsg="";
 
 function curRole(){ return ($("roleIn").value.trim() || domainOf(ctx.field).name).slice(0,60); }
 function curFieldName(){ return domainOf(ctx.field).name; }
 
+function syncSkills(){
+  ctx.skills = (ctx.all||[]).filter(s=>!ctx.off.has(s.name));
+  $("skills").innerHTML = (ctx.all||[]).map(s=>`<button type="button" class="skill ${ctx.off.has(s.name)?"off":""}" data-n="${esc(s.name)}" aria-pressed="${!ctx.off.has(s.name)}">${esc(s.name)}</button>`).join("");
+  $("skillNote").classList.toggle("hide",!(ctx.all||[]).length);
+}
+function addSkill(txt){
+  txt=txt.trim(); if(!txt) return;
+  const low=txt.toLowerCase(); let name=txt, hit=null;
+  if(ctx.field==="software") hit=Object.entries(BANK).find(([n,d])=>n.toLowerCase()===low||d.k.includes(low)||n.toLowerCase().includes(low));
+  if(hit) name=hit[0]; else name=cap(txt.slice(0,40));
+  ctx.all=ctx.all||[]; ctx.off=ctx.off||new Set();
+  const ex=ctx.all.find(s=>s.name===name);
+  if(ex){ ex.n=999; ctx.off.delete(name); } else ctx.all.push({name,n:999});
+  ctx.all.sort((a,b)=>b.n-a.n); syncSkills();
+}
 function applyField(id, resetRole){
   ctx.field = id;
   const low = (ctx.text||"").toLowerCase();
-  ctx.skills = skillsFor(low,id);
+  ctx.all = skillsFor(low,id); ctx.off = new Set(ctx.all.filter(s=>s.off).map(s=>s.name));
+  ctx.projects = projectLines(ctx.text);
+  syncSkills();
   $("field").value = id;
   if(resetRole || $("roleIn").dataset.auto!=="0"){
     $("roleIn").value = pickRole(low,id);
     $("roleIn").dataset.auto = "1";
   }
-  $("skills").innerHTML = ctx.skills.length ? ctx.skills.map(s=>`<span>${esc(s.name)}</span>`).join("") : "";
   if(typeof markQuick==="function") markQuick();
 }
 
@@ -423,7 +478,7 @@ const SPLIT = {
  senior:[["intro",5],["core",20],["case",5],["practical",20],["solve",10],["work",15],["design",15],["behav",5],["close",5]],
  advanced:[["intro",5],["core",15],["practical",20],["solve",10],["design",20],["lead",10],["work",10],["behav",5],["close",5]]
 };
-const LVL = {fresher:["basic"],mid:["mid","basic"],senior:["senior","mid"],advanced:["advanced","senior"]};
+const LVL = {fresher:["basic","mid"],mid:["mid","basic"],senior:["senior","mid"],advanced:["advanced","senior"]};
 const shuffle = a => { a=[...a]; for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
 const ORDER = {
  fresher:["basic","mid"],
@@ -452,12 +507,17 @@ function buildPlan(level,total){
   const id=ctx.field, d=domainOf(id), role=curRole();
   const top=ctx.skills.slice(0,3).map(s=>s.name);
   const used=new Set();
+  let seen={}; try{ seen=JSON.parse(localStorage.getItem("ip_seen")||"{}"); }catch(e){}
+  if(Object.keys(seen).length>2500) seen={};
+  const key=t=>String(t).slice(0,90);
+  const fresh=(pool,k)=>pool.map((o,i)=>[o,(seen[key(k(o))]||0)*1000+i+Math.random()*4]).filter(([o])=>!used.has(k(o))).sort((a,b)=>a[1]-b[1]).map(x=>x[0]);
+  const mark=t=>{ used.add(t); seen[key(t)]=(seen[key(t)]||0)+1; };
   const tpl=roleTemplates(role.toLowerCase()==="professional"?"a professional":role.toLowerCase());
-  const take=(pool,n)=>{ const out=[]; for(const q of pool){ if(out.length>=n) break; if(used.has(q)) continue; used.add(q); out.push(q);} return out; };
+  const take=(pool,n)=>{ const out=[]; for(const q of fresh(pool,x=>x)){ if(out.length>=n) break; mark(q); out.push(q);} return out; };
   const order=ORDER[level];
-  const takeObj=(pool,n)=>{ const out=[]; for(const o of pool){ if(out.length>=n) break; if(used.has(o.t)) continue; used.add(o.t); out.push(o);} return out; };
+  const takeObj=(pool,n)=>{ const out=[]; for(const o of fresh(pool,x=>x.t)){ if(out.length>=n) break; mark(o.t); out.push(o);} return out; };
 
-  return SPLIT[level].map(([type,pct])=>{
+  const result=SPLIT[level].map(([type,pct])=>{
     const mins=Math.round(total*pct/100), n=Math.max(1,Math.round(mins/4));
     let qs=[];
     switch(type){
@@ -500,23 +560,35 @@ function buildPlan(level,total){
           order.forEach(t=>(PRACTICAL[id]?.[t]||[]).forEach(x=>own.push(x)));
           order.forEach(t=>(UNIVERSAL_TASKS[t]||[]).forEach(x=>tp.push(x.replace(/\{R\}/g,role))));
           const texts=id==="general"?[...tp,...own]:[...own,...tp];
-          qs=takeObj(texts.map(x=>({type:"task",t:x})),Math.max(1,Math.round(mins/6)));
+          const nt=Math.max(2,Math.round(mins/6)), gen=genTasks(role.toLowerCase(),level,Math.ceil(nt/2));
+          gen.forEach(o=>used.add(o.t));
+          qs=[...gen,...takeObj(texts.map(x=>({type:"task",t:x})),nt)].slice(0,nt);
         }
         break;}
       case "solve":{
         const pool=[];
         LVL[level].forEach(l=>shuffle(SOLVE.filter(p=>p.lvl===l)).forEach(p=>pool.push({type:"solve",t:p.t,ans:p.ans,tol:p.tol,why:p.why})));
-        qs=takeObj(pool,Math.max(1,Math.round(mins/3))); break;}
+        const nn=Math.max(3,Math.round(mins/3)), gen=genSolve(level,Math.ceil(nn/2));
+        gen.forEach(o=>used.add(o.t));
+        const open=takeObj(pool.filter(o=>o.ans===undefined),1);
+        qs=[...open,...gen,...takeObj(pool,nn)].slice(0,nn); break;}
       case "lead": qs=take(GENERIC.leadership,n); break;
       case "behav": qs=take(GENERIC.behavioral,n); break;
-      case "work":
+      case "work":{
+        const mine=(ctx.projects||[]).map(l=>`Your resume says: "${l}". What was your exact contribution, and what was the hardest part?`);
+        if(mine.length){
+          qs=[...take(mine,Math.min(2,Math.max(1,n))),
+              "What was the hardest decision you made on that work, and what alternatives did you consider?",
+              "How did you measure success, and what would you do differently?"].slice(0,Math.max(2,n)); break; }
         qs=[`Pick the most significant project, case, client or piece of work on your resume${top[0]&&id==="software"?` (ideally one using ${top[0]})`:""}. What was your exact contribution?`,
             "What was the hardest decision you made, and what alternatives did you consider?",
-            "How did you measure success, and what would you do differently?"].slice(0,Math.max(1,n)); break;
+            "How did you measure success, and what would you do differently?"].slice(0,Math.max(1,n)); break;}
       default: qs=take(GENERIC.closing,n);
     }
     return {title:labelFor(id,type),mins,qs};
   });
+  try{ localStorage.setItem("ip_seen",JSON.stringify(seen)); }catch(e){}
+  return result;
 }
 
 function planItem(q){
@@ -709,6 +781,9 @@ $("gen").onclick=()=>renderPlan($("level").value,+$("dur").value);
 /* ---------- Look and feel: choices, hero, drop zone ---------- */
 const QUICK=[["software","Software"],["electronics","Electronics and embedded"],["law","Law"],["finance","Finance"],["accounting","Accounting"],["architecture","Architecture"],["interior","Interior design"],["fashion","Fashion"],["design","UX and graphic design"],["marketing","Marketing"],["sales","Sales"],["hr","HR"],["pm","Project management"],["healthcare","Healthcare"],["education","Teaching"],["engineering","Engineering"],["writing","Writing"],["operations","Operations"],["service","Service and hospitality"]];
 $("quick").innerHTML=QUICK.map(([id,l])=>`<button type="button" class="chip" data-id="${id}">${esc(l)}</button>`).join("");
+$("skills").addEventListener("click",e=>{ const b=e.target.closest(".skill"); if(!b) return; const n=b.dataset.n; ctx.off.has(n)?ctx.off.delete(n):ctx.off.add(n); syncSkills(); });
+$("skillAdd").addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); e.target.value.split(",").forEach(addSkill); e.target.value=""; } });
+$("skillAdd").addEventListener("change",e=>{ e.target.value.split(",").forEach(addSkill); e.target.value=""; });
 $("quick").addEventListener("click",e=>{ const b=e.target.closest(".chip"); if(!b) return; applyField(b.dataset.id,true); });
 function markQuick(){ document.querySelectorAll("#quick .chip").forEach(b=>{ const on=b.dataset.id===ctx.field; b.classList.toggle("on",on); b.setAttribute("aria-pressed",on); }); }
 
@@ -747,29 +822,6 @@ const dz=$("drop");
 dz.addEventListener("drop",e=>{ if(e.dataTransfer.files.length){ $("file").files=e.dataTransfer.files; $("file").dispatchEvent(new Event("change")); } });
 $("file").addEventListener("change",()=>{ const f=$("file").files[0]; if(f){ $("fileName").textContent=f.name; dz.classList.add("has"); } });
 
-/* hero: the interviewer asks real questions from different professions */
-(function(){
-  const asks=["law","interior","finance","healthcare","fashion","architecture","education","marketing","hr","engineering"].map(id=>{
-    const d=domainOf(id), pool=[...(d.core.basic||[]),...(d.core.mid||[]),...(d.case.basic||[])];
-    return {id,who:d.roles[0],q:pool[Math.floor(Math.random()*pool.length)]};
-  });
-  asks.push({id:"software",who:"software engineer",q:BANK.JavaScript.q.basic[1]});
-  let i=Math.floor(Math.random()*asks.length), timer=null;
-  const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
-  function show(){
-    clearInterval(timer);
-    const a=asks[i];
-    $("heroWho").textContent="a "+a.who;
-    $("heroGo").textContent="Practise for "+a.who+"s";
-    $("heroGo").dataset.id=a.id;
-    const next=()=>{ i=(i+1)%asks.length; show(); };
-    if(reduce){ $("heroQ").textContent=a.q; setTimeout(next,7000); return; }
-    let n=0; $("heroQ").textContent="";
-    timer=setInterval(()=>{ $("heroQ").textContent=a.q.slice(0,++n); if(n>=a.q.length){ clearInterval(timer); setTimeout(next,3800); } },24);
-  }
-  show();
-  $("heroGo").onclick=()=>{ applyField($("heroGo").dataset.id,true); $("setup").scrollIntoView({behavior:"smooth"}); };
-})();
 </script>
 <script src="coach.js"></script>
 </body>

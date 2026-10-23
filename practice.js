@@ -160,6 +160,21 @@ const SOLVE = [
  {lvl:"senior",t:"Two people each toss a fair coin three times. What is the probability, in percent, that they get exactly the same number of heads?",ans:31.25,tol:0.02,why:"(1 + 9 + 9 + 1) / 64 = 20/64 = 31.25%."},
  {lvl:"senior",t:"A 10-step process has a 95% success rate at each step and no rework. What is the end-to-end success rate in percent? Then say how you would improve it.",ans:59.9,tol:0.02,why:"0.95^10 is about 0.599, so roughly 60%. Improving the weakest steps, adding checks and removing steps all raise it."},
  {lvl:"senior",t:"Estimate the annual revenue of a busy neighbourhood cafe. State your assumptions, do the calculation and sanity-check the result."},
+ {lvl:"basic",t:"You buy 3 notebooks at 45 each and pay with a 200 note. How much change do you get?",ans:65,why:"3 x 45 = 135, and 200 - 135 = 65."},
+ {lvl:"basic",t:"A shop runs 'buy 2, get 1 free' on items that cost 60 each. You need 9 items. What is the total you pay?",ans:360,why:"Every group of 3 items costs for 2, so 9 items means 6 paid items: 6 x 60 = 360."},
+ {lvl:"basic",t:"A meeting starts at 2:45 pm and runs 95 minutes. How many minutes after 4:00 pm does it end?",ans:20,why:"2:45 pm + 95 min = 4:20 pm, which is 20 minutes after 4:00 pm."},
+ {lvl:"basic",t:"Your phone is at 10% battery, you have an important call in one hour and no charger. What do you do, in order, and why?"},
+ {lvl:"mid",t:"Plan A costs 30 per month plus a 120 setup fee. Plan B costs 45 per month with no fee. After how many whole months does Plan A become cheaper in total?",ans:9,why:"A is 30m + 120 and B is 45m. They are equal at m = 8, so A is cheaper from month 9."},
+ {lvl:"mid",t:"A task needs 240 hours. Two people work 6 hours a day and one person works 4 hours a day. How many days will it take?",ans:15,why:"Together they do 6 + 6 + 4 = 16 hours a day, and 240 / 16 = 15 days."},
+ {lvl:"mid",t:"Supplier X sells at 90 per unit but 4% of units are defective and are replaced at 90 each. Supplier Y sells at 100 per unit with 0.5% defective, replaced at 100 each. For 1,000 units, how much more does Y cost than X in total?",ans:6900,why:"X: 90,000 + 40 x 90 = 93,600. Y: 100,000 + 5 x 100 = 100,500. Difference = 6,900. Compare this with the quality risk before you decide."},
+ {lvl:"mid",t:"Two different people give you conflicting deadlines for the same morning. What do you do, step by step?"},
+ {lvl:"senior",t:"A campaign costs 5,000 and brings 200 customers who each give 40 profit. What is the return on investment as a percentage?",ans:60,why:"Profit is 200 x 40 = 8,000. Net gain is 8,000 - 5,000 = 3,000, and 3,000 / 5,000 = 60%."},
+ {lvl:"senior",t:"You can sign a safe contract worth 50,000, or a risky one that pays 120,000 with a 40% chance and nothing otherwise. What is the expected value of the risky contract?",ans:48000,why:"0.4 x 120,000 = 48,000, slightly below the safe 50,000. Then think about risk tolerance and cash flow before choosing."},
+ {lvl:"senior",t:"You sell 120 units a week, the supplier lead time is 2 weeks, and you keep 1 week of safety stock. At what stock level should you reorder?",ans:360,why:"Demand during lead time is 240, plus safety stock of 120 = 360 units."},
+ {lvl:"senior",t:"Output fell after your team adopted a new tool. How would you decide whether to keep it? State what you would measure and what result would change your mind."},
+ {lvl:"advanced",t:"You borrow 100,000 at 8% compound interest per year with no repayments. What is the balance after 2 years?",ans:116640,why:"100,000 x 1.08 x 1.08 = 116,640."},
+ {lvl:"advanced",t:"Fixed costs are 90,000 per month, the price is 50 per unit and variable cost is 20 per unit. How many units must you sell each month to break even?",ans:3000,why:"Each unit contributes 50 - 20 = 30. 90,000 / 30 = 3,000 units."},
+ {lvl:"advanced",t:"Two critical projects both need your only specialist for the next 3 weeks. Decide, quantify the trade-off with stated assumptions, and say what new fact would change your decision."},
  {lvl:"advanced",t:"Estimate how many cups of coffee are sold in your city each day. State your assumptions, calculate, and sanity-check the result."},
  {lvl:"advanced",t:"A key metric dropped 15% week over week with no release. List the hypotheses you would test, in order, and how you would check each."},
  {lvl:"advanced",t:"You have three important tasks and time for only two. Each differs in impact, effort and deadline. Explain the framework you would use and apply it to an example."},
@@ -243,7 +258,147 @@ const CODE = [
   hint:"Dynamic programming: best[a] = 1 + the minimum of best[a - coin] over all coins.",
   prompt:"Write coinChange(coins, amount) that returns the fewest coins needed to make amount (unlimited coins of each value), or -1 if impossible. It must handle large amounts quickly.",
   starter:"function coinChange(coins, amount) {\n  // your code here\n}\n",
-  tests:[[[[1,2,5],11],3],[[[2],3],-1],[[[1],0],0],[[[186,419,83,408],6249],20]]}
+  tests:[[[[1,2,5],11],3],[[[2],3],-1],[[[1],0],0],[[[186,419,83,408],6249],20]]},
+ {lvl:"basic",title:"FizzBuzz list",fn:"fizzBuzz",
+  hint:"Loop from 1 to n. Check divisibility by 15 first.",
+  prompt:"Write fizzBuzz(n) returning an array of strings for 1..n: 'Fizz' for multiples of 3, 'Buzz' for multiples of 5, 'FizzBuzz' for both, otherwise the number as a string.",
+  starter:"function fizzBuzz(n) {\n  // your code here\n}\n",
+  tests:[[[5],["1","2","Fizz","4","Buzz"]],[[15],["1","2","Fizz","4","Buzz","Fizz","7","8","Fizz","Buzz","11","Fizz","13","14","FizzBuzz"]],[[0],[]],[[3],["1","2","Fizz"]]]},
+ {lvl:"basic",title:"Count vowels",fn:"countVowels",
+  hint:"Lower-case the text and count characters in 'aeiou'.",
+  prompt:"Write countVowels(s) that returns how many vowels (a, e, i, o, u, in any case) the string contains.",
+  starter:"function countVowels(s) {\n  // your code here\n}\n",
+  tests:[[["Hello World"],3],[[""],0],[["rhythm"],0],[["AEIOU aeiou"],10]]},
+ {lvl:"basic",title:"Sum of digits",fn:"sumDigits",
+  hint:"Use n % 10 and Math.floor(n / 10), or convert to a string.",
+  prompt:"Write sumDigits(n) that returns the sum of the digits of a non-negative integer.",
+  starter:"function sumDigits(n) {\n  // your code here\n}\n",
+  tests:[[[123],6],[[0],0],[[9999],36],[[1000000],1]]},
+ {lvl:"mid",title:"First non-repeating character",fn:"firstUnique",
+  hint:"Count characters first, then scan the string again in order.",
+  prompt:"Write firstUnique(s) that returns the first character that appears exactly once, or an empty string if none does.",
+  starter:"function firstUnique(s) {\n  // your code here\n}\n",
+  tests:[[["swiss"],"w"],[["aabb"],""],[[""],""],[["leetcode"],"l"]]},
+ {lvl:"mid",title:"Rotate an array",fn:"rotateRight",
+  hint:"Use k % length, then slice the end and put it in front.",
+  prompt:"Write rotateRight(arr, k) that returns a new array rotated to the right by k positions. k can be larger than the array length.",
+  starter:"function rotateRight(a,k) {\n  // your code here\n}\n",
+  tests:[[[[1,2,3,4,5],2],[4,5,1,2,3]],[[[1,2,3],5],[2,3,1]],[[[],3],[]],[[[7],10],[7]]]},
+ {lvl:"mid",title:"Deep flatten",fn:"deepFlatten",
+  hint:"Recurse into any element that is an array.",
+  prompt:"Write deepFlatten(arr) that flattens nested arrays of any depth into one array, keeping the order.",
+  starter:"function deepFlatten(a) {\n  // your code here\n}\n",
+  tests:[[[[1,[2,[3,[4]]]]],[1,2,3,4]],[[[]],[]],[[[[],[[]],5]],[5]]]},
+ {lvl:"senior",title:"Product of the rest",fn:"productExceptSelf",
+  hint:"Build prefix products going right, then multiply by suffix products going left. Do not divide.",
+  prompt:"Write productExceptSelf(nums) that returns an array where each item is the product of all other items. Do not use division, and aim for O(n).",
+  starter:"function productExceptSelf(n) {\n  // your code here\n}\n",
+  tests:[[[[1,2,3,4]],[24,12,8,6]],[[[0,1,2]],[2,0,0]],[[[5]],[1]],[[[2,3,0,4]],[0,0,24,0]]]},
+ {lvl:"senior",title:"Search in a rotated array",fn:"searchRotated",
+  hint:"Binary search: at each step one half is always sorted.",
+  prompt:"A sorted array of distinct numbers was rotated at an unknown point. Write searchRotated(nums, target) returning the index of target or -1, in O(log n).",
+  starter:"function searchRotated(a,t) {\n  // your code here\n}\n",
+  tests:[[[[4,5,6,7,0,1,2],0],4],[[[4,5,6,7,0,1,2],3],-1],[[[1],1],0],[[[3,1],1],1]]},
+ {lvl:"advanced",title:"Longest increasing subsequence",fn:"lis",
+  hint:"Keep the smallest possible tail for each length and use binary search. O(n log n) is needed for large input.",
+  prompt:"Write lis(nums) returning the length of the longest strictly increasing subsequence. It must handle 100,000 numbers quickly.",
+  starter:"function lis(a) {\n  // your code here\n}\n",
+  tests:[[[[10,9,2,5,3,7,101,18]],4],[[[]],0],[[[0,1,0,3,2,3]],4],[[Array.from({length:100000},(_,i)=>i)],1]]},
+ {lvl:"advanced",title:"Count islands",fn:"numIslands",
+  hint:"Flood-fill each unvisited land cell with an explicit stack, not recursion, so large grids do not overflow.",
+  prompt:"Write numIslands(grid) where 1 is land and 0 is water. Count groups of land connected up, down, left or right. It must handle a 500 x 500 grid.",
+  starter:"function numIslands(g) {\n  // your code here\n}\n",
+  tests:[[[[[1,1,0],[0,1,0],[0,0,1]]],2],[[[[0]]],0],[[[[1,0,1],[0,1,0],[1,0,1]]],5],[[Array.from({length:500},(_,i)=>Array.from({length:500},(_,j)=>(i+j)%2))],0]]}
 ];
 
 if (typeof module !== "undefined") module.exports = { UNIVERSAL_TASKS, PRACTICAL, SOLVE, CODE };
+
+/* ---------- Generators: fresh numbers on every run, so no two sessions are identical ---------- */
+const _r = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+const _pick = a => a[Math.floor(Math.random() * a.length)];
+const _money = n => n.toLocaleString("en-US");
+const _r2 = n => Math.round(n * 100) / 100;
+const GEN_SOLVE = {
+  basic: [
+    () => { const O = _r(4, 40) * 50, d = _pick([10, 20, 25, 30, 40]), P = O * (1 - d / 100);
+      return { t: `An item costs ${_money(P)} after a ${d}% discount. What was the original price?`, ans: O, why: `${_money(P)} is ${100 - d}% of the original, so the original is ${_money(P)} / ${(1 - d / 100).toFixed(2)} = ${_money(O)}.` }; },
+    () => { const w = _r(3, 8), days = _r(6, 20), w2 = w * _pick([2, 3]);
+      return { t: `${w} people finish a job in ${days} days. At the same pace, how many days would ${w2} people need?`, ans: w * days / w2, why: `The job is ${w * days} person-days. With ${w2} people it takes ${w * days} / ${w2} = ${w * days / w2} days.` }; },
+    () => { const n1 = _r(4, 12), n2 = n1 * _pick([2, 3]) + _r(0, 2), p1 = _r(10, 40), p2 = Math.round(p1 * n2 / n1 * _pick([0.8, 0.9, 1.1, 1.2])),
+        u1 = p1 / n1, u2 = p2 / n2;
+      return { t: `Pack A has ${n1} units for ${p1}. Pack B has ${n2} units for ${p2}. What is the lowest price per unit you can get? (2 decimals)`, ans: _r2(Math.min(u1, u2)), tol: 0.02, why: `A costs ${_r2(u1)} per unit and B costs ${_r2(u2)} per unit. Take the lower one.` }; },
+    () => { const b = _r(4, 30) * 10, t = _pick([5, 8, 10]), s = _pick([10, 12, 15]);
+      return { t: `A bill is ${b}. Tax of ${t}% is added to the bill, and then a ${s}% service charge is added on the bill before tax. What is the total? (2 decimals)`, ans: _r2(b + b * t / 100 + b * s / 100), tol: 0.02, why: `Tax ${_r2(b * t / 100)} + service ${_r2(b * s / 100)} + bill ${b}.` }; }
+  ],
+  mid: [
+    () => { const p = _r(20, 60), v = _r(8, p - 8), F = _r(10, 90) * 100, ans = Math.ceil(F / (p - v));
+      return { t: `Fixed costs are ${_money(F)}. Each unit sells for ${p} and costs ${v} to make. How many units (whole number, rounded up) do you need to sell to break even?`, ans, why: `Profit per unit is ${p - v}. ${_money(F)} / ${p - v} = ${_r2(F / (p - v))}, rounded up to ${ans}.` }; },
+    () => { const x = _pick([10, 20, 25, 30, 40, 50]), y = _pick([10, 20, 25, 30, 40, 50]);
+      return { t: `A figure rises ${x}% and then falls ${y}%. What is the net change in percent? (negative if it fell, 2 decimals)`, ans: _r2(((1 + x / 100) * (1 - y / 100) - 1) * 100), tol: 0.02, why: `Multiply: ${1 + x / 100} x ${1 - y / 100} = ${_r2((1 + x / 100) * (1 - y / 100))}, so the change is ${_r2(((1 + x / 100) * (1 - y / 100) - 1) * 100)}%. Percent changes do not cancel.` }; },
+    () => { const a = _r(3, 8), b = a + _r(2, 8);
+      return { t: `Person A can finish a task in ${a} hours and person B in ${b} hours. Working together, how many hours does it take? (2 decimals)`, ans: _r2(1 / (1 / a + 1 / b)), tol: 0.02, why: `Rates add: 1/${a} + 1/${b}. Together the time is 1 / (1/${a} + 1/${b}) = ${_r2(1 / (1 / a + 1 / b))} hours.` }; },
+    () => { const c = _r(4, 40) * 10, m = _pick([20, 25, 30, 40, 50]);
+      return { t: `Your cost is ${c}. You want a ${m}% profit margin on the selling price (not on cost). What price do you charge? (2 decimals)`, ans: _r2(c / (1 - m / 100)), tol: 0.02, why: `Margin is a share of the price, so price = cost / (1 - ${m / 100}) = ${_r2(c / (1 - m / 100))}.` }; }
+  ],
+  senior: [
+    () => { const P = _r(5, 40) * 1000, r = _pick([4, 5, 6, 8, 10]), n = _r(3, 8);
+      return { t: `You invest ${_money(P)} at ${r}% a year, compounded yearly. What is it worth after ${n} years? (nearest whole number)`, ans: Math.round(P * Math.pow(1 + r / 100, n)), tol: 0.005, why: `${_money(P)} x ${1 + r / 100}^${n} = ${_money(Math.round(P * Math.pow(1 + r / 100, n)))}.` }; },
+    () => { const Ca = _r(6, 30) * 1000, Cb = _r(6, 30) * 1000, sa = _r(3, 12) * 100, sb = _r(3, 12) * 100, pa = Ca / sa, pb = Cb / sb;
+      if (Math.abs(pa - pb) < 1) return GEN_SOLVE.senior[1]();
+      return { t: `Option A costs ${_money(Ca)} and saves ${_money(sa)} a month. Option B costs ${_money(Cb)} and saves ${_money(sb)} a month. In how many months does the better option pay itself back? (1 decimal)`, ans: Math.round(Math.min(pa, pb) * 10) / 10, tol: 0.02, why: `A pays back in ${_r2(pa)} months and B in ${_r2(pb)} months. The shorter one wins.` }; },
+    () => { const p = _pick([20, 30, 40, 60]), G = _r(5, 40) * 10000, C = _r(2, 8) * 10000, ev = G * p / 100 - C;
+      if (ev === 0) return GEN_SOLVE.senior[2]();
+      return { t: `A project costs ${_money(C)}. It has a ${p}% chance of paying ${_money(G)} and otherwise pays nothing. What is the expected net value? (negative if a loss)`, ans: ev, why: `${p}% x ${_money(G)} = ${_money(G * p / 100)}, minus the cost ${_money(C)} gives ${_money(ev)}. A positive expected value is not the only factor: also weigh how much loss you can survive.` }; },
+    () => { const q = _r(40, 200), h = _r(5, 12), u = _pick([70, 75, 80, 85]), ans = Math.ceil(q / (h * u / 100));
+      return { t: `You get ${q} requests an hour. One person handles ${h} an hour but can only be productive ${u}% of the time. How many people (whole number, rounded up) do you need?`, ans, why: `Real capacity is ${h} x ${u / 100} = ${_r2(h * u / 100)} per person. ${q} / ${_r2(h * u / 100)} = ${_r2(q / (h * u / 100))}, rounded up to ${ans}.` }; }
+  ],
+  advanced: [
+    () => { const I = _r(10, 40) * 1000, cf = Math.round(I * _pick([0.4, 0.45, 0.5]) / 100) * 100, r = _pick([8, 10, 12]);
+      const npv = Math.round(cf / (1 + r / 100) + cf / Math.pow(1 + r / 100, 2) + cf / Math.pow(1 + r / 100, 3) - I);
+      return { t: `You invest ${_money(I)} now and receive ${_money(cf)} at the end of each of the next 3 years. At a ${r}% discount rate, what is the net present value? (nearest whole number, negative if a loss)`, ans: npv, tol: 0.02, why: `Discount each payment: ${_money(cf)}/${1 + r / 100}, /${1 + r / 100}^2, /${1 + r / 100}^3, add them and subtract ${_money(I)}. That gives ${_money(npv)}.` }; },
+    () => { const a = _r(90, 98), b = _r(90, 98), c = _r(90, 98);
+      return { t: `A process has 3 stages with yields of ${a}%, ${b}% and ${c}%. What is the overall yield in percent? (2 decimals)`, ans: _r2(a * b * c / 10000), tol: 0.01, why: `Multiply the yields: ${a / 100} x ${b / 100} x ${c / 100} = ${_r2(a * b * c / 10000)}%. Small losses compound.` }; },
+    () => { const d = _r(20, 80), L = _r(2, 9), ss = _r(10, 60), ans = d * L + ss;
+      return { t: `Demand is ${d} units a day, a supplier takes ${L} days to deliver, and you keep a safety stock of ${ss} units. At what stock level should you reorder?`, ans, why: `Demand during lead time is ${d} x ${L} = ${d * L}. Add the safety stock ${ss} to get ${ans}.` }; },
+    () => { const s = _r(40, 120), a = _r(60, 85), w = _r(2, 6) * 10, ans = Math.round(100 * w / (a - s / 2) * 0) + 0;
+      const rate = _r(2, 9) * 10, hrs = _r(6, 24), lost = _r(5, 20);
+      return { t: `A team of ${rate / 10 + 2} people each lose ${lost}% of their week to meetings. The rest of their 40-hour week goes to project work. How many project hours does the team deliver per week? (nearest whole number)`, ans: Math.round((rate / 10 + 2) * 40 * (1 - lost / 100)), tol: 0.01, why: `Each person has ${40 * (1 - lost / 100)} project hours. Multiply by ${rate / 10 + 2} people.` }; }
+  ]
+};
+const GEN_ORDER = { basic: ["basic"], mid: ["mid", "basic"], senior: ["senior", "mid"], advanced: ["advanced", "senior"] };
+function genSolve(level, n) {
+  const out = [], seen = new Set(), tiers = GEN_ORDER[level] || ["basic"];
+  let guard = 0;
+  while (out.length < n && guard++ < 60) {
+    const tier = tiers[out.length % tiers.length], f = _pick(GEN_SOLVE[tier]);
+    const o = f();
+    if (!seen.has(o.t)) { seen.add(o.t); out.push({ type: "solve", t: o.t, ans: o.ans, tol: o.tol, why: o.why }); }
+  }
+  return out;
+}
+
+const GEN_TASK = {
+  basic: [
+    r => `You are a new ${r} and have ${_r(3, 6)} tasks due by the end of the day, ${_r(1, 2)} of them urgent. Write the order you would do them in and the message you would send to your manager.`,
+    r => `A colleague asks you to check their work as a ${r}. You find ${_r(3, 7)} mistakes, ${_r(1, 2)} of them serious. Write exactly what you would say to them.`
+  ],
+  mid: [
+    r => `A ${r} project has a budget of ${_money(_r(20, 90) * 1000)} and you are ${_r(10, 35)}% over after ${_r(4, 8)} of ${_r(10, 16)} weeks. Write a recovery plan: what you cut, what you protect and what you tell the client.`,
+    r => `Your team of ${_r(3, 8)} ${r} professionals must deliver in ${_r(5, 12)} days, but ${_r(1, 2)} people are suddenly unavailable. Re-plan the work, say what you drop and write the message to stakeholders.`,
+    r => `A client rates your work ${_r(2, 3)} out of 5 and says it does not meet their expectations. As a ${r}, write the steps you take in the next 48 hours.`
+  ],
+  senior: [
+    r => `You lead ${_r(6, 20)} people in a ${r} function and must cut costs by ${_r(10, 25)}% without hurting quality. Write your plan with the numbers you would track and the order of your decisions.`,
+    r => `Two of your strongest ${r} professionals threaten to resign the same week a big deliverable is due in ${_r(7, 21)} days. Write your plan for the next 7 days.`,
+    r => `Design a ${_r(3, 6)}-month plan to raise customer or client satisfaction from ${_r(60, 75)}% to ${_r(85, 92)}% for a ${r} team. State the metrics, owners and risks.`
+  ]
+};
+function genTasks(role, level, n) {
+  const tiers = level === "fresher" ? ["basic"] : level === "mid" ? ["basic", "mid"] : level === "senior" ? ["mid", "senior"] : ["senior"];
+  const out = [], seen = new Set(); let guard = 0;
+  while (out.length < n && guard++ < 40) {
+    const f = _pick(GEN_TASK[_pick(tiers)]), t = f(role);
+    if (!seen.has(t)) { seen.add(t); out.push({ type: "task", t }); }
+  }
+  return out;
+}
