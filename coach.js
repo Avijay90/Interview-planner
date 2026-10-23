@@ -28,11 +28,17 @@ function hintFor(it) {
   return isBehItem(it) ? "Use Situation, Action, Result: set the scene, say what YOU did, then the outcome and what you learned." : "Start with the core idea, give a concrete example, then mention one trade-off.";
 }
 
-function setExtra(html) {
+function setExtra(html, before) {
   let x = $("sExtra");
-  if (!x) { x = document.createElement("div"); x.id = "sExtra"; $("hintBox").after(x); }
+  if (!x) { x = document.createElement("div"); x.id = "sExtra"; }
   x.innerHTML = html;
+  if (before) $("notes").before(x); else $("notes").after(x);
   return x;
+}
+
+function renderProg() {
+  const p = $("prog");
+  if (p) p.innerHTML = items.map((_, i) => `<i class="${i < sIdx ? "done" : i === sIdx ? "now" : ""}"></i>`).join("");
 }
 
 function startSession() {
@@ -64,6 +70,7 @@ function showItem() {
   $("sTitle").innerHTML = esc(it.sec) + ` <span class="badge">${badge}</span>`;
   $("sQ").textContent = it.type === "code" ? it.t + ". " + it.prob.prompt : it.t;
   $("sCount").textContent = `Question ${sIdx + 1} of ${items.length}`;
+  renderProg();
   $("prev").disabled = sIdx === 0;
   $("next").textContent = sIdx === items.length - 1 ? "Finish & get feedback" : "Next";
 
@@ -116,7 +123,7 @@ function showItem() {
     };
     if (a.tests) $("runOut").innerHTML = renderTestResult(a.tests);
   } else if (it.type === "solve" && it.ans != null) {
-    setExtra(`<label for="num">Your answer (a number)</label><input type="text" id="num" inputmode="decimal" placeholder="e.g. 42" autocomplete="off"><div class="note">Then show your working below.</div>${micNote}`);
+    setExtra(`<label for="num">Your answer (a number)</label><input type="text" id="num" inputmode="decimal" placeholder="e.g. 42" autocomplete="off"><div class="note">Then show your working below.</div>${micNote}`, true);
     $("num").value = a.num;
     $("num").oninput = e => { a.num = e.target.value; };
   } else {
@@ -419,7 +426,7 @@ function renderReport(rep) {
   const short = x => { const t = x.it.type === "code" ? x.it.t : x.it.t; return t.length > 100 ? t.slice(0, 97) + "…" : t; };
   el.innerHTML = `<h2 style="margin-top:0">Your interview feedback</h2>
    <div class="score"><div class="ring" style="--p:${rep.overall}"><span>${rep.overall}</span></div>
-     <div><b>${band}</b><div class="note">${blurb}</div>${hist.length > 1 ? `<div class="note">Recent scores in this field: ${hist.join(" → ")}</div>` : ""}</div></div>
+     <div>${rep.overall >= 75 ? `<span class="sticker">Nicely done</span><br>` : ""}<b>${band}</b><div class="note">${blurb}</div>${hist.length > 1 ? `<div class="note">Recent scores in this field: ${hist.join(" → ")}</div>` : ""}</div></div>
    ${pace ? `<div class="note">${esc(pace)}</div>` : ""}
    <div class="sec-h"><span>Skills</span></div>
    ${Object.entries(rep.cats).map(([k, v]) => dim(k, v)).join("")}

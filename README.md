@@ -1,15 +1,15 @@
 # Interview Planner
 
-Interview preparation for any profession. Upload a resume (PDF, DOCX, TXT), choose a level (Fresher, 2 yrs, 5 yrs, Advanced 7+), and get a timed interview plan plus a mock session mode.
+Interview preparation for any profession. Upload a resume (PDF, DOCX, TXT), choose a level (Fresher up to Advanced; the level names scale with your own years, e.g. 8 years gives Advanced 10+, 15 years gives Advanced 20+), and get a timed interview plan plus a mock session mode.
 
 ## Files
 
 | File | What it does |
 | --- | --- |
 | `index.html` | The whole app (page, logic, software skill bank) |
-| `domains.js` | 18 profession banks: detection keywords, roles and question banks. **Must sit next to `index.html`.** |
+| `domains.js` | 20 profession banks: detection keywords, roles and question banks. **Must sit next to `index.html`.** |
 | `roles.js` | Directory of about 370 job titles mapped to a field, used for suggestions and detection. **Must sit next to `index.html`.** |
-| `practice.js` | Practical tasks for 17 professions, 14 coding challenges with tests, and 19 reasoning problems. **Must sit next to `index.html`.** |
+| `practice.js` | Practical tasks for 18 professions, 14 coding challenges with tests, and 19 reasoning problems. **Must sit next to `index.html`.** |
 | `coach.js` | The interactive interview, the in-browser code runner and the feedback report. **Must sit next to `index.html`.** |
 | `worker.js` | Optional Cloudflare Worker for cloud AI questions and AI feedback |
 
@@ -27,7 +27,7 @@ When you finish, you get a **feedback report**: an overall score, skill bars (co
 
 ## Professions included
 
-Software / IT, Law, Fashion Design, Interior Design, Architecture, Financial Advisory / Wealth, Accounting / Audit / Tax, Marketing, Sales / Business Development, HR / Recruiting, Project / Product Management, UX / Graphic Design, Healthcare / Nursing, Teaching / Education, Engineering (Civil / Mechanical / Electrical), Writing / Journalism, Operations / Supply Chain, Customer Service / Hospitality, plus **Other / General** for anything not listed.
+Software / IT, Law, Fashion Design, Interior Design, Architecture, Financial Advisory / Wealth, Accounting / Audit / Tax, Marketing, Sales / Business Development, HR / Recruiting, Project / Product Management, UX / Graphic Design, Healthcare / Nursing, Teaching / Education, Electronics / Semiconductor / Embedded / IoT, Engineering (Civil / Mechanical / Electrical), Writing / Journalism, Operations / Supply Chain, Customer Service / Hospitality, plus **Other / General** for anything not listed.
 
 ## Any profession, in three layers
 

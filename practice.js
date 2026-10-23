@@ -14,6 +14,13 @@ const UNIVERSAL_TASKS = {
 };
 
 const PRACTICAL = {
+ electronics:{
+  basic:["Write the C code (or clear pseudocode) to debounce a push button read from a GPIO pin, and say what timing you chose and why.",
+         "Draw or describe a circuit that powers a 3.3 V microcontroller from a 12 V supply. List the parts and what each protects against."],
+  mid:["Design the firmware structure for a battery sensor node that reads a temperature sensor every minute and sends data over BLE or LoRa. State the sleep modes, wake sources and rough current budget.",
+       "A SPI flash read returns wrong data intermittently. List the first 6 checks you would make, in order, with the tool for each."],
+  senior:["Write a one-page plan for secure OTA updates on 10,000 deployed IoT devices: signing, rollback, staged rollout and failure handling.",
+          "A block fails timing by 150 ps at the target clock. List the fixes you would try in order and the trade-off of each."]},
  law:{
   basic:["Draft a one-paragraph confidentiality clause for an agreement between a company and a freelance consultant. Then list two risks it does not cover.",
          "A client emails: 'My landlord kept my full deposit without notice.' Write the reply you would send, including the 3 facts you need from them and your next steps."],

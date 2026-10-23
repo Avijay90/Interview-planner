@@ -9,113 +9,221 @@
 <script src="domains.js"></script>
 <script src="roles.js"></script>
 <script src="practice.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#f6f7fb;--card:#fff;--ink:#1c2230;--mut:#667085;--pri:#4f46e5;--bd:#e4e7ec}
-@media(prefers-color-scheme:dark){:root{--bg:#10131a;--card:#181c26;--ink:#eef0f6;--mut:#9aa3b5;--bd:#2a3040}}
+:root{--paper:#F4F7FB;--surface:#FFFFFF;--ink:#12203A;--mut:#56637F;--line:#D8E0EE;--cobalt:#2B4BFF;--on-cobalt:#FFFFFF;--link:#2B4BFF;--mint:#CFF4E0;--mintd:#35B37E;--on-mint:#0E3A29;--sun:#FFD04A;--on-sun:#3A2A00;--good:#0B7A4C;--warn:#A8480A}
+@media(prefers-color-scheme:dark){:root{--paper:#0C1428;--surface:#142040;--ink:#EAF0FF;--mut:#9AA8CB;--line:#2A3963;--cobalt:#4764FF;--link:#9DB0FF;--mint:#1B5E48;--on-mint:#D8FFF0;--good:#4CD39A;--warn:#FFB066}}
 *{box-sizing:border-box}
-body{margin:0;font:16px/1.5 system-ui,sans-serif;background:var(--bg);color:var(--ink)}
-main{max-width:760px;margin:0 auto;padding:20px 16px 60px}
-h1{font-size:26px;margin:8px 0 4px}
-.sub{color:var(--mut);margin:0 0 20px}
-.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:18px;margin-bottom:16px}
-label{display:block;font-weight:600;margin:12px 0 6px}
-select,input[type=file],input[type=text],textarea{width:100%;padding:10px;border:1px solid var(--bd);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit}
-button{background:var(--pri);color:#fff;border:0;border-radius:10px;padding:11px 18px;font:inherit;font-weight:600;cursor:pointer;margin-top:14px;margin-right:8px}
-button.sec{background:transparent;color:var(--pri);border:1px solid var(--pri)}
-button:disabled{opacity:.5;cursor:not-allowed}
-.chips span{display:inline-block;background:var(--bg);border:1px solid var(--bd);border-radius:99px;padding:3px 11px;margin:3px 4px 3px 0;font-size:14px}
-.sec-h{display:flex;justify-content:space-between;font-weight:700;margin-top:14px}
-.sec-h small{color:var(--mut);font-weight:500}
-ol{padding-left:20px;margin:6px 0}
-li{margin:6px 0}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.55 Figtree,system-ui,-apple-system,Segoe UI,sans-serif;-webkit-font-smoothing:antialiased}
+main{max-width:760px;margin:0 auto;padding:26px 18px 72px}
+h1,h2,h3,.big{font-family:"Bricolage Grotesque",Figtree,system-ui,sans-serif}
+:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
 .hide{display:none}
-.big{font-size:20px;font-weight:600;line-height:1.4;margin:10px 0}
-.timer{font-variant-numeric:tabular-nums;color:var(--mut)}
-.note{color:var(--mut);font-size:14px}
-.opt{display:flex;gap:8px;align-items:center;font-weight:500;margin:12px 0 0}
-a{color:var(--pri);text-decoration:none}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+a{color:var(--link);text-underline-offset:3px}
+.note{color:var(--mut);font-size:14.5px}
+.brand{display:flex;align-items:center;gap:9px;font:700 16px "Bricolage Grotesque",sans-serif;margin-bottom:34px}
+.brand i{width:14px;height:14px;background:var(--cobalt);border-radius:50% 50% 50% 2px}
+h1{font-size:clamp(2.3rem,8.2vw,3.8rem);line-height:1.02;letter-spacing:-.028em;font-weight:800;margin:0 0 14px;max-width:15ch}
+.sub{color:var(--mut);margin:0;max-width:46ch;font-size:1.06rem}
+.hero-ask{margin:30px 0 0;background:var(--cobalt);color:var(--on-cobalt);border-radius:24px 24px 24px 6px;padding:22px 24px}
+.hero-ask .q{font:600 clamp(1.3rem,4.8vw,1.85rem)/1.22 "Bricolage Grotesque",sans-serif;min-height:3.7em;max-width:30ch}
+.hero-ask .q::after{content:"";display:inline-block;width:2px;height:1em;margin-left:3px;background:currentColor;vertical-align:-.12em;animation:caret 1s steps(1) infinite}
+@keyframes caret{50%{opacity:0}}
+.hero-meta{display:flex;gap:6px 16px;align-items:center;flex-wrap:wrap;margin:12px 4px 0;color:var(--mut);font-size:15px}
+.hero-meta b{color:var(--ink)}
+.link{background:none;border:0;padding:0;margin:0;color:var(--link);font:600 15px Figtree,sans-serif;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+
+.thread{margin-top:58px}
+.turn{margin:0 0 36px}
+.ask-s{display:inline-block;max-width:94%;margin:0 0 12px;background:var(--cobalt);color:var(--on-cobalt);border-radius:18px 18px 18px 5px;padding:11px 17px;font:600 1.12rem/1.3 "Bricolage Grotesque",sans-serif}
+.reply-s{margin-left:12px;padding-left:16px;border-left:3px solid var(--mint)}
+label{display:block;font-weight:600;font-size:15px;margin:12px 0 6px}
+select,input[type=text],textarea{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);font:inherit}
+select:focus,input[type=text]:focus,textarea:focus{border-color:var(--cobalt)}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 @media(max-width:560px){.two{grid-template-columns:1fr}}
-textarea.code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;white-space:pre;overflow:auto}
-.badge{display:inline-block;font-size:12px;font-weight:600;border:1px solid var(--pri);color:var(--pri);border-radius:99px;padding:0 8px;margin-left:6px;vertical-align:1px}
-.hint{background:var(--bg);border:1px dashed var(--bd);border-radius:10px;padding:10px;margin:8px 0}
-.score{display:flex;align-items:center;gap:16px;margin:8px 0 4px}
-.ring{width:92px;height:92px;border-radius:50%;display:grid;place-items:center;font-size:28px;font-weight:800;background:conic-gradient(var(--pri) calc(var(--p)*1%),var(--bd) 0)}
-.ring span{background:var(--card);width:72px;height:72px;border-radius:50%;display:grid;place-items:center}
-.dim{display:grid;grid-template-columns:150px 1fr 38px;gap:8px;align-items:center;margin:6px 0;font-size:14px}
-.bar{height:8px;background:var(--bd);border-radius:99px;overflow:hidden}
-.bar i{display:block;height:100%;background:var(--pri)}
-details{border:1px solid var(--bd);border-radius:10px;padding:8px 12px;margin:8px 0}
-summary{cursor:pointer;font-weight:600}
-.pill{font-size:12px;font-weight:700;border-radius:99px;padding:1px 9px;margin-left:6px;background:var(--bg);border:1px solid var(--bd)}
-.ans{white-space:pre-wrap;background:var(--bg);border-radius:8px;padding:8px;font-size:14px;margin:6px 0}
-ul.tips{margin:6px 0;padding-left:20px}
-@media(max-width:560px){.dim{grid-template-columns:110px 1fr 34px}}
-@media print{#setup,#session,#plan,button{display:none}}
+.drop{display:flex;gap:14px;align-items:center;margin:0;padding:16px;border:2px dashed var(--line);border-radius:16px;background:var(--surface);cursor:pointer;font-weight:400}
+.drop:hover,.drop.over{border-color:var(--cobalt)}
+.drop:focus-within{outline:3px solid var(--sun);outline-offset:2px}
+.drop.has{border-style:solid;border-color:var(--mintd)}
+.drop svg{flex:none;width:34px;height:42px;color:var(--cobalt)}
+.drop b{display:block;font-weight:700;overflow-wrap:anywhere}
+.chips span{display:inline-block;margin:10px 6px 0 0;padding:2px 9px;border-radius:6px;background:var(--mint);color:var(--on-mint);font:600 13.5px Figtree,sans-serif}
+.quick{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 6px}
+.chip{margin:0;padding:8px 14px;border:1.5px solid var(--line);border-radius:99px;background:var(--surface);color:var(--ink);font:600 14.5px Figtree,sans-serif;cursor:pointer}
+.chip:hover{border-color:var(--ink)}
+.chip.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.rungs{display:flex;gap:8px;align-items:flex-end}
+.rung{flex:1;min-width:0;margin:0;padding:12px;display:flex;flex-direction:column;justify-content:flex-end;align-items:flex-start;text-align:left;border:1.5px solid var(--line);border-radius:14px 14px 6px 6px;background:var(--surface);color:var(--ink);font:700 16px/1.15 "Bricolage Grotesque",sans-serif;cursor:pointer}
+.rung small{display:block;margin-top:4px;color:var(--mut);font:500 12.5px/1.25 Figtree,sans-serif}
+.rung:nth-child(1){height:90px}.rung:nth-child(2){height:114px}.rung:nth-child(3){height:138px}.rung:nth-child(4){height:162px}
+.rung:hover{border-color:var(--ink)}
+.rung.on{background:var(--cobalt);border-color:var(--cobalt);color:var(--on-cobalt)}
+.rung.on small{color:rgba(255,255,255,.88)}
+.lens{display:flex;gap:8px;flex-wrap:wrap}
+.len{margin:0;padding:10px 18px;border:1.5px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);font:700 15px Figtree,sans-serif;cursor:pointer}
+.len:hover{border-color:var(--ink)}
+.len.on{background:var(--cobalt);border-color:var(--cobalt);color:var(--on-cobalt)}
+.modes{display:grid;gap:8px}
+.mode{margin:0;display:flex;gap:12px;align-items:flex-start;text-align:left;padding:12px 14px;border:1.5px solid var(--line);border-radius:14px;background:var(--surface);color:var(--ink);font:400 15px/1.4 Figtree,sans-serif;cursor:pointer}
+.mode i{flex:none;width:18px;height:18px;margin-top:2px;border:2px solid var(--line);border-radius:50%}
+.mode b{display:block;font:700 16px "Bricolage Grotesque",sans-serif}
+.mode small{display:block;color:var(--mut);font-size:14px}
+.mode.on{border-color:var(--cobalt)}
+.mode.on i{border-color:var(--cobalt);background:var(--cobalt);box-shadow:inset 0 0 0 3px var(--surface)}
+.opt{display:flex;gap:10px;align-items:flex-start;margin:12px 0 0;font-weight:500;font-size:15px}
+.opt input{margin-top:4px;accent-color:var(--cobalt)}
+
+button{margin:14px 8px 0 0;padding:13px 22px;border:0;border-radius:14px;background:var(--cobalt);color:var(--on-cobalt);font:700 16px Figtree,sans-serif;cursor:pointer}
+button:active{transform:translateY(1px)}
+button.sec{background:transparent;color:var(--link);border:1.5px solid var(--link)}
+button:disabled{opacity:.45;cursor:not-allowed}
+#gen{width:100%;margin:6px 0 0;padding:17px;font:800 1.15rem "Bricolage Grotesque",sans-serif}
+
+#plan{margin-top:56px}
+#plan h2,#report h2{font:800 clamp(1.7rem,6vw,2.4rem)/1.08 "Bricolage Grotesque",sans-serif;letter-spacing:-.02em;margin:0 0 6px}
+.ag{display:grid;grid-template-columns:60px 1fr;gap:0 16px;padding:18px 0;border-top:1.5px solid var(--line)}
+.ag .t b{display:block;font:800 1.8rem/1 "Bricolage Grotesque",sans-serif}
+.ag .t small{color:var(--mut);font-size:13.5px}
+.ag h3{margin:0 0 6px;font:700 1.2rem/1.2 "Bricolage Grotesque",sans-serif}
+.ag ol{margin:0;padding-left:20px}
+.ag li{margin:8px 0}
+.tag{display:inline-block;margin-right:6px;padding:1px 7px;border-radius:6px;background:var(--sun);color:var(--on-sun);font:700 12.5px Figtree,sans-serif}
+
+#session{margin-top:44px}
+.sbar{display:flex;justify-content:space-between;align-items:center;font:700 15.5px "Bricolage Grotesque",sans-serif}
+.timer{font-variant-numeric:tabular-nums;color:var(--mut)}
+.prog{display:flex;gap:4px;margin:10px 0 18px}
+.prog i{flex:1;height:5px;border-radius:3px;background:var(--line)}
+.prog i.done{background:var(--mintd)}
+.prog i.now{background:var(--cobalt)}
+.ask{margin:0 0 14px;padding:18px 20px;background:var(--cobalt);color:var(--on-cobalt);border-radius:22px 22px 22px 6px}
+.ask .big{margin:0;font:600 clamp(1.2rem,4.4vw,1.6rem)/1.3 "Bricolage Grotesque",sans-serif}
+.badge{display:inline-block;margin-left:8px;padding:1px 7px;border-radius:6px;background:var(--sun);color:var(--on-sun);font:700 12px Figtree,sans-serif;vertical-align:1px}
+.hint{margin:0 0 12px;padding:12px 15px;background:var(--sun);color:var(--on-sun);border-radius:4px 14px 4px 14px;font-size:15.5px;transform:rotate(-.6deg)}
+#notes{border:2px solid var(--mint)}
+#notes:focus{border-color:var(--cobalt)}
+textarea.code{font:14px/1.5 ui-monospace,Menlo,Consolas,monospace;white-space:pre;overflow:auto;tab-size:2}
 .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.good{color:#067647;font-size:14px;margin:6px 0}
-.fix{color:#b54708;font-size:14px;margin:6px 0}
-@media(prefers-color-scheme:dark){.good{color:#47cd89}.fix{color:#fdb022}}
 #sExtra input[type=text]{max-width:240px}
-.aiout{margin-top:8px}
+#sCount{margin-top:14px}
+
+#report{margin-top:48px}
+.score{display:flex;align-items:center;gap:18px;margin:12px 0 8px}
+.ring{flex:none;width:108px;height:108px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--cobalt) calc(var(--p)*1%),var(--line) 0)}
+.ring span{width:84px;height:84px;border-radius:50%;display:grid;place-items:center;background:var(--paper);font:800 2.1rem "Bricolage Grotesque",sans-serif}
+.sticker{display:inline-block;margin-bottom:6px;padding:3px 10px;border-radius:8px;background:var(--sun);color:var(--on-sun);font:800 14px "Bricolage Grotesque",sans-serif;transform:rotate(-3deg)}
+.sec-h{display:flex;justify-content:space-between;align-items:baseline;margin:28px 0 6px;font:700 1.2rem "Bricolage Grotesque",sans-serif}
+.sec-h small{color:var(--mut);font:500 14px Figtree,sans-serif}
+.dim{display:grid;grid-template-columns:150px 1fr 34px;gap:10px;align-items:center;margin:8px 0;font-size:15px}
+.bar{height:8px;border-radius:4px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--cobalt)}
+.dim b{text-align:right}
+@media(max-width:560px){.dim{grid-template-columns:104px 1fr 30px;font-size:14px}}
+details{margin:0;padding:10px 0;border-top:1.5px solid var(--line)}
+summary{cursor:pointer;font-weight:600}
+.pill{display:inline-block;margin-left:6px;padding:1px 8px;border-radius:6px;background:var(--mint);color:var(--on-mint);font:700 12.5px Figtree,sans-serif}
+.ans{margin:8px 0;padding:10px 12px;background:var(--surface);border:1.5px solid var(--line);border-radius:10px;font-size:14.5px;white-space:pre-wrap}
+ul.tips,#report ul{margin:6px 0;padding-left:20px}
+.good{margin:6px 0;color:var(--good);font-size:14.5px}
+.fix{margin:6px 0;color:var(--warn);font-size:14.5px}
+.aiout{margin-top:10px}
+.foot{margin-top:64px;color:var(--mut);font-size:14px;max-width:52ch}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.hero-ask .q::after{animation:none}}
+@media print{.brand,header,#setup,#session,#plan,button,.foot{display:none}}
 </style>
 </head>
 <body>
 <main>
-<h1>Interview Planner</h1>
-<p class="sub">For any profession. Upload your resume, pick your level, get a tailored interview plan. Your resume is read in your browser. It only leaves your device if you tick the optional cloud AI excerpt box.</p>
+<div class="brand"><i></i>Interview Planner</div>
 
-<section class="card" id="setup">
-  <label for="file">1. Resume (PDF, DOCX or TXT) <span class="note">— optional, but it lets us detect your field</span></label>
-  <input type="file" id="file" accept=".pdf,.docx,.txt">
-  <div class="chips" id="skills"></div>
+<header>
+  <h1>Rehearse the interview before it happens.</h1>
+  <p class="sub">Tell us what you do. We build questions, hands-on tasks and feedback for your exact job, whatever it is.</p>
+  <div class="hero-ask" aria-live="off"><div class="q" id="heroQ"></div></div>
+  <div class="hero-meta"><span>Asked of <b id="heroWho"></b></span><button type="button" class="link" id="heroGo"></button></div>
+</header>
 
-  <div class="two">
-    <div>
-      <label for="field">2. Your field</label>
-      <select id="field"></select>
-    </div>
-    <div>
-      <label for="roleIn">Job title</label>
-      <input type="text" id="roleIn" maxlength="60" list="titles" placeholder="Type any job title, e.g. Pilot">
-      <datalist id="titles"></datalist>
+<section class="thread" id="setup">
+  <div class="turn">
+    <p class="ask-s">First, tell me about your background. Do you have a resume?</p>
+    <div class="reply-s">
+      <label class="drop" id="drop">
+        <input type="file" id="file" accept=".pdf,.docx,.txt" class="sr">
+        <svg viewBox="0 0 34 42" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" aria-hidden="true"><path d="M5 2h16l9 9v29H5z"/><path d="M21 2v9h9"/><path d="M11 20h13M11 26h13M11 32h8" stroke-linecap="round"/></svg>
+        <span><b id="fileName">Choose or drop your resume</b><span class="note">PDF, DOCX or TXT. Optional, and it stays in your browser.</span></span>
+      </label>
+      <div class="chips" id="skills"></div>
     </div>
   </div>
-  <div class="note" id="fieldNote">Any profession works. Pick a job title from the suggestions or type your own. If it is not in a listed field, the planner builds role-specific questions from the title itself, and the AI options go further.</div>
 
-  <label for="level">3. Interview level</label>
-  <select id="level">
-    <option value="fresher">Fresher (0–1 yr)</option>
-    <option value="mid">2 years experience</option>
-    <option value="senior">5 years experience</option>
-    <option value="advanced">Advanced (7+ years)</option>
-  </select>
+  <div class="turn">
+    <p class="ask-s">What do you do for work?</p>
+    <div class="reply-s">
+      <div class="quick" id="quick"></div>
+      <div class="two">
+        <div><label for="field">Field</label><select id="field"></select></div>
+        <div><label for="roleIn">Job title</label><input type="text" id="roleIn" maxlength="60" list="titles" placeholder="Type any job title"><datalist id="titles"></datalist></div>
+      </div>
+      <div class="note" id="fieldNote">Not in the list? Type your job title. We build questions from the title itself.</div>
+    </div>
+  </div>
 
-  <label for="dur">4. Session length</label>
-  <select id="dur">
-    <option value="30">30 minutes</option>
-    <option value="45" selected>45 minutes</option>
-    <option value="60">60 minutes</option>
-    <option value="90">90 minutes</option>
-  </select>
+  <div class="turn">
+    <p class="ask-s">How much experience do you have?</p>
+    <div class="reply-s">
+      <label for="yrs">Your years of experience (optional, sets the levels below)</label>
+      <input type="text" id="yrs" inputmode="numeric" maxlength="2" placeholder="For example 8" style="max-width:160px;margin-bottom:12px">
+      <div class="rungs" id="levelCards"></div>
+      <select id="level" class="sr" tabindex="-1" aria-hidden="true">
+        <option value="fresher">Fresher (0–1 yr)</option>
+        <option value="mid">2 years experience</option>
+        <option value="senior">5 years experience</option>
+        <option value="advanced">Advanced (7+ years)</option>
+      </select>
+    </div>
+  </div>
 
-  <label for="ai">5. AI-generated questions (optional)</label>
-  <select id="ai">
-    <option value="none">Off (built-in questions only)</option>
-    <option value="cloud">Cloud AI (free, fast, works on phones)</option>
-    <option value="local">In-browser AI (private, ~1 GB download, needs WebGPU)</option>
-  </select>
-  <label class="opt"><input type="checkbox" id="excerpt"> Send a redacted resume excerpt to cloud AI for better results</label>
-  <label class="opt"><input type="checkbox" id="web" checked> Add reading and discussion topics from free sites (Stack Exchange, DEV, Open Trivia DB)</label>
+  <div class="turn">
+    <p class="ask-s">How long do we have?</p>
+    <div class="reply-s">
+      <div class="lens" id="lenCards"></div>
+      <select id="dur" class="sr" tabindex="-1" aria-hidden="true">
+        <option value="30">30 minutes</option>
+        <option value="45" selected>45 minutes</option>
+        <option value="60">60 minutes</option>
+        <option value="90">90 minutes</option>
+      </select>
+    </div>
+  </div>
 
-  <button id="gen">Generate plan</button>
+  <div class="turn">
+    <p class="ask-s">Want AI to write extra questions just for you?</p>
+    <div class="reply-s">
+      <div class="modes" id="modeCards"></div>
+      <select id="ai" class="sr" tabindex="-1" aria-hidden="true">
+        <option value="none">Off (built-in questions only)</option>
+        <option value="cloud">Cloud AI (free, fast, works on phones)</option>
+        <option value="local">In-browser AI (private, ~1 GB download, needs WebGPU)</option>
+      </select>
+      <label class="opt"><input type="checkbox" id="excerpt"> Send a redacted resume excerpt to cloud AI for better results</label>
+      <label class="opt"><input type="checkbox" id="web" checked> Add reading and discussion topics from free sites (Stack Exchange, DEV, Open Trivia DB)</label>
+    </div>
+  </div>
+
+  <button id="gen">Build my plan</button>
 </section>
 
-<section class="card hide" id="plan"></section>
+<section class="hide" id="plan"></section>
 
-<section class="card hide" id="session">
-  <div class="sec-h"><span id="sTitle"></span><span class="timer" id="sTimer">00:00</span></div>
-  <div class="big" id="sQ"></div>
+<section class="hide" id="session">
+  <div class="sbar"><span id="sTitle"></span><span class="timer" id="sTimer">00:00</span></div>
+  <div class="prog" id="prog"></div>
+  <div class="ask"><div class="big" id="sQ"></div></div>
   <div class="hint hide" id="hintBox"></div>
   <textarea id="notes" rows="7"></textarea>
   <button id="prev" class="sec">Back</button><button id="next">Next</button>
@@ -124,7 +232,9 @@ ul.tips{margin:6px 0;padding-left:20px}
   <div class="note" id="sCount"></div>
 </section>
 
-<section class="card hide" id="report"></section>
+<section class="hide" id="report"></section>
+
+<p class="foot">Free to use. Your resume is read in your browser and is never uploaded. Past scores stay in your browser too.</p>
 </main>
 
 <script>
@@ -262,7 +372,14 @@ function yearsIn(low){
   }
   return years;
 }
-const suggestLevel = y => y>=7?"advanced":y>=4?"senior":y>=2?"mid":"fresher";
+const suggestLevel = y => y>=7?"senior":y>=4?"senior":y>=2?"mid":"fresher";
+/* Level names scale with the person's own experience: the top tier is always a step above them. */
+function levelSpec(y){
+  y=+y||0;
+  if(y<7) return {fresher:["Fresher","0–1 year"],mid:["2 years","some experience"],senior:["5 years","solid experience"],advanced:["7+ years","advanced"]};
+  const top=Math.ceil((y+1)/5)*5, mid=Math.max(2,Math.round(y*0.4));
+  return {fresher:["Fresher","0–1 year"],mid:[`${mid} years`,"mid-career"],senior:[`${y} years`,"your level"],advanced:[`${top}+ years`,"a step above"]};
+}
 
 /* ---------- State ---------- */
 let ctx = {field:"general", skills:[], years:0, text:""};
@@ -281,6 +398,7 @@ function applyField(id, resetRole){
     $("roleIn").dataset.auto = "1";
   }
   $("skills").innerHTML = ctx.skills.length ? ctx.skills.map(s=>`<span>${esc(s.name)}</span>`).join("") : "";
+  if(typeof markQuick==="function") markQuick();
 }
 
 /* ---------- Universal role-based questions: work for ANY job title ---------- */
@@ -344,7 +462,7 @@ function buildPlan(level,total){
     let qs=[];
     switch(type){
       case "intro":
-        qs=[`Walk me through your background as a ${role} and what you are most proud of.`,"Why this role, and what are you looking for next?"]; break;
+        qs=[`Walk me through your background as ${/^[aeiou]/i.test(role)?"an":"a"} ${role} and what you are most proud of.`,"Why this role, and what are you looking for next?"]; break;
       case "core":{
         const pool=[];
         if(id==="software"){
@@ -403,18 +521,18 @@ function buildPlan(level,total){
 
 function planItem(q){
   if(typeof q==="string") return `<li>${esc(q)}</li>`;
-  if(q.type==="code") return `<li><b>Coding:</b> ${esc(q.t)} <span class="note">(JavaScript, tests run in your browser)</span></li>`;
-  if(q.type==="task") return `<li><b>Practical:</b> ${esc(q.t)}</li>`;
-  if(q.type==="solve") return `<li><b>Reasoning:</b> ${esc(q.t)}</li>`;
+  if(q.type==="code") return `<li><span class="tag">Coding</span>${esc(q.t)} <span class="note">JavaScript, tests run in your browser</span></li>`;
+  if(q.type==="task") return `<li><span class="tag">Practical</span>${esc(q.t)}</li>`;
+  if(q.type==="solve") return `<li><span class="tag">Reasoning</span>${esc(q.t)}</li>`;
   return `<li>${esc(q.t)} <a href="${esc(q.url)}" target="_blank" rel="noopener">↗</a></li>`;
 }
 
 function drawPlan(total){
   const label=$("level").selectedOptions[0].text;
-  $("plan").innerHTML = `<h2 style="margin-top:0">Your ${total}-minute plan</h2>
-   <div class="note">${esc(label)} · ${esc(curRole())} · ${esc(curFieldName())}${ctx.skills.length?" · "+ctx.skills.slice(0,3).map(s=>esc(s.name)).join(", "):""}</div><div class="note" id="status">${esc(statusMsg)}</div>`+
-   plan.map(s=>`<div class="sec-h"><span>${esc(s.title)}</span><small>${s.mins?s.mins+" min":"bonus"}</small></div><ol>${s.qs.map(planItem).join("")}</ol>`).join("")+
-   `<button id="start">Start mock session</button><button class="sec" id="print">Print / save PDF</button>`;
+  $("plan").innerHTML = `<h2>Your ${total}-minute plan</h2>
+   <p class="note">${esc(curRole())} in ${esc(curFieldName())}, ${esc(label)}.${ctx.skills.length?" Skills spotted: "+ctx.skills.slice(0,3).map(s=>esc(s.name)).join(", ")+".":""}</p><p class="note" id="status">${esc(statusMsg)}</p>`+
+   plan.map(s=>`<section class="ag"><div class="t">${s.mins?`<b>${s.mins}</b><small>min</small>`:`<b>+</b><small>bonus</small>`}</div><div><h3>${esc(s.title)}</h3><ol>${s.qs.map(planItem).join("")}</ol></div></section>`).join("")+
+   `<button id="start">Start the interview</button><button class="sec" id="print">Print / save PDF</button>`;
   $("plan").classList.remove("hide");
   $("start").onclick=startSession;
   $("print").onclick=()=>window.print();
@@ -582,11 +700,76 @@ $("file").addEventListener("change",async e=>{
     }
     applyField(id,true);
     if(guessed){ $("roleIn").value=cap(guessed); $("roleIn").dataset.auto="1"; }
-    $("level").value=suggestLevel(ctx.years);
+    $("level").value=suggestLevel(ctx.years); if(typeof renderLevels==="function"){ renderLevels(); $("level").value=suggestLevel(ctx.years); $("yrs").value=ctx.years||""; syncAll(); }
     $("fieldNote").textContent=`Detected: ${curFieldName()}${ctx.years?`, about ${ctx.years} years mentioned`:""}. Change the field, title or level if this is not right.`;
   }catch(err){ alert(err.message); }
 });
 $("gen").onclick=()=>renderPlan($("level").value,+$("dur").value);
+
+/* ---------- Look and feel: choices, hero, drop zone ---------- */
+const QUICK=[["software","Software"],["electronics","Electronics and embedded"],["law","Law"],["finance","Finance"],["accounting","Accounting"],["architecture","Architecture"],["interior","Interior design"],["fashion","Fashion"],["design","UX and graphic design"],["marketing","Marketing"],["sales","Sales"],["hr","HR"],["pm","Project management"],["healthcare","Healthcare"],["education","Teaching"],["engineering","Engineering"],["writing","Writing"],["operations","Operations"],["service","Service and hospitality"]];
+$("quick").innerHTML=QUICK.map(([id,l])=>`<button type="button" class="chip" data-id="${id}">${esc(l)}</button>`).join("");
+$("quick").addEventListener("click",e=>{ const b=e.target.closest(".chip"); if(!b) return; applyField(b.dataset.id,true); });
+function markQuick(){ document.querySelectorAll("#quick .chip").forEach(b=>{ const on=b.dataset.id===ctx.field; b.classList.toggle("on",on); b.setAttribute("aria-pressed",on); }); }
+
+const GROUPS=[
+ ["level","levelCards","rung",[]],
+ ["dur","lenCards","len",[["30","30 min"],["45","45 min"],["60","60 min"],["90","90 min"]]],
+ ["ai","modeCards","mode",[["none","Built-in questions only","Always works, no setup."],["cloud","Cloud AI","Fresh questions for your exact job. Fast, and works on phones."],["local","In-browser AI","Runs on your device and stays private. About 1 GB the first time, and needs a recent desktop browser."]]]
+];
+function renderLevels(){
+  const sp=levelSpec(ctx.years), keep=$("level").value;
+  [...$("level").options].forEach(o=>{ const v=sp[o.value]; o.textContent=o.value==="fresher"?"Fresher (0–1 yr)":o.value==="advanced"?`Advanced (${v[0]})`:`${v[0]} experience`; });
+  $("levelCards").innerHTML=["fresher","mid","senior","advanced"].map(k=>`<button type="button" class="rung" data-v="${k}">${esc(sp[k][0])}<small>${esc(sp[k][1])}</small></button>`).join("");
+  $("level").value=keep;
+}
+GROUPS.forEach(([sel,box,cls,opts])=>{
+  if(sel==="level") return;
+  $(box).innerHTML=opts.map(o=>cls==="rung"?`<button type="button" class="rung" data-v="${o[0]}">${esc(o[1])}<small>${esc(o[2])}</small></button>`
+    :cls==="len"?`<button type="button" class="len" data-v="${o[0]}">${esc(o[1])}</button>`
+    :`<button type="button" class="mode" data-v="${o[0]}"><i></i><span><b>${esc(o[1])}</b><small>${esc(o[2])}</small></span></button>`).join("");
+});
+GROUPS.forEach(([sel,box])=>$(box).addEventListener("click",e=>{ const b=e.target.closest("button"); if(!b) return; $(sel).value=b.dataset.v; $(sel).dispatchEvent(new Event("change")); syncAll(); }));
+$("yrs").addEventListener("input",()=>{
+  const y=parseInt($("yrs").value.replace(/\D/g,""))||0; ctx.years=y;
+  $("level").value=suggestLevel(y); renderLevels(); $("level").value=suggestLevel(y); syncAll();
+});
+function syncAll(){
+  GROUPS.forEach(([sel,box])=>document.querySelectorAll("#"+box+" button").forEach(b=>{ const on=b.dataset.v===$(sel).value; b.classList.toggle("on",on); b.setAttribute("aria-pressed",on); }));
+}
+if(CONFIG.WORKER_URL) $("ai").value="cloud";
+renderLevels(); syncAll(); markQuick();
+
+/* drop zone and file name */
+const dz=$("drop");
+["dragenter","dragover"].forEach(ev=>dz.addEventListener(ev,e=>{ e.preventDefault(); dz.classList.add("over"); }));
+["dragleave","drop"].forEach(ev=>dz.addEventListener(ev,e=>{ e.preventDefault(); dz.classList.remove("over"); }));
+dz.addEventListener("drop",e=>{ if(e.dataTransfer.files.length){ $("file").files=e.dataTransfer.files; $("file").dispatchEvent(new Event("change")); } });
+$("file").addEventListener("change",()=>{ const f=$("file").files[0]; if(f){ $("fileName").textContent=f.name; dz.classList.add("has"); } });
+
+/* hero: the interviewer asks real questions from different professions */
+(function(){
+  const asks=["law","interior","finance","healthcare","fashion","architecture","education","marketing","hr","engineering"].map(id=>{
+    const d=domainOf(id), pool=[...(d.core.basic||[]),...(d.core.mid||[]),...(d.case.basic||[])];
+    return {id,who:d.roles[0],q:pool[Math.floor(Math.random()*pool.length)]};
+  });
+  asks.push({id:"software",who:"software engineer",q:BANK.JavaScript.q.basic[1]});
+  let i=Math.floor(Math.random()*asks.length), timer=null;
+  const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function show(){
+    clearInterval(timer);
+    const a=asks[i];
+    $("heroWho").textContent="a "+a.who;
+    $("heroGo").textContent="Practise for "+a.who+"s";
+    $("heroGo").dataset.id=a.id;
+    const next=()=>{ i=(i+1)%asks.length; show(); };
+    if(reduce){ $("heroQ").textContent=a.q; setTimeout(next,7000); return; }
+    let n=0; $("heroQ").textContent="";
+    timer=setInterval(()=>{ $("heroQ").textContent=a.q.slice(0,++n); if(n>=a.q.length){ clearInterval(timer); setTimeout(next,3800); } },24);
+  }
+  show();
+  $("heroGo").onclick=()=>{ applyField($("heroGo").dataset.id,true); $("setup").scrollIntoView({behavior:"smooth"}); };
+})();
 </script>
 <script src="coach.js"></script>
 </body>
