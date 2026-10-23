@@ -130,7 +130,7 @@ ul.tips{margin:6px 0;padding-left:20px}
 <script>
 pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 /* After deploying worker.js to Cloudflare, paste its URL here (see README) */
-const CONFIG = { WORKER_URL: "" };
+const CONFIG = { WORKER_URL: "https://interview-ai.toankurvijay-90.workers.dev" };
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
