@@ -365,12 +365,55 @@ const GEN_SOLVE = {
       return { t: `A team of ${rate / 10 + 2} people each lose ${lost}% of their week to meetings. The rest of their 40-hour week goes to project work. How many project hours does the team deliver per week? (nearest whole number)`, ans: Math.round((rate / 10 + 2) * 40 * (1 - lost / 100)), tol: 0.01, why: `Each person has ${40 * (1 - lost / 100)} project hours. Multiply by ${rate / 10 + 2} people.` }; }
   ]
 };
+
+/* Data-interpretation problems: the data is in the question, the answer is a number */
+const _mon = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
+Object.assign(GEN_SOLVE, {});
+GEN_SOLVE.basic.push(
+  () => { const v = Array.from({ length: 5 }, () => _r(20, 90)), sum = v.reduce((a, b) => a + b, 0), days = ["Mon", "Tue", "Wed", "Thu", "Fri"];
+    return { t: `Orders received this week: ${days.map((d, i) => d + " " + v[i]).join(", ")}. What is the average number of orders per day? (2 decimals)`, ans: _r2(sum / 5), tol: 0.02, why: `Total ${sum} divided by 5 days = ${_r2(sum / 5)}.` }; },
+  () => { const N = _r(8, 30) * 10, a = _r(2, 7) * 10, b = _r(1, 4) * 10;
+    return { t: `Out of ${N} applicants, ${a} were rejected at screening and a further ${b} withdrew. What percentage of the applicants are still in the process? (2 decimals)`, ans: _r2((N - a - b) / N * 100), tol: 0.02, why: `${N} - ${a} - ${b} = ${N - a - b} remain. ${N - a - b} / ${N} = ${_r2((N - a - b) / N * 100)}%.` }; },
+  () => { const v = Array.from({ length: 4 }, () => _r(40, 140)), mx = Math.max(...v), mn = Math.min(...v), q = ["Q1", "Q2", "Q3", "Q4"];
+    return { t: `Sales by quarter: ${q.map((x, i) => x + " " + v[i]).join(", ")}. By how much is the best quarter higher than the weakest one?`, ans: mx - mn, why: `Best ${mx} minus weakest ${mn} = ${mx - mn}.` }; }
+);
+GEN_SOLVE.mid.push(
+  () => { const v = [_r(100, 160)]; for (let i = 1; i < 5; i++) v.push(Math.round(v[i - 1] * (1 + _pick([-0.05, 0.04, 0.1, 0.15, 0.2, 0.25]))));
+    let best = 1, bg = -9; for (let i = 1; i < 5; i++) { const g = (v[i] - v[i - 1]) / v[i - 1] * 100; if (g > bg) { bg = g; best = i; } }
+    return { t: `Monthly sales (units): ${v.map((x, i) => _mon[i] + " " + x).join(", ")}. What was the largest month-on-month growth, in percent? (1 decimal)`, ans: Math.round(bg * 10) / 10, tol: 0.03, why: `Growth is (this month - last month) / last month. The best was ${_mon[best]}: (${v[best]} - ${v[best - 1]}) / ${v[best - 1]} = ${Math.round(bg * 10) / 10}%.` }; },
+  () => { const need = _r(12, 30) * 10, pa = _r(10, 14), pb = pa + _r(2, 5), thr = _pick([100, 120]), d = _pick([15, 20, 25]);
+    const ca = need * pa, cb = need >= thr ? need * pb * (1 - d / 100) : need * pb;
+    return { t: `You need ${need} units. Vendor A charges ${pa} per unit. Vendor B charges ${pb} per unit but gives ${d}% off the whole order when you buy ${thr} or more. How much cheaper is the cheaper vendor for this order? (2 decimals)`, ans: _r2(Math.abs(ca - cb)), tol: 0.02, why: `A costs ${_money(ca)}. B costs ${_money(_r2(cb))}. The difference is ${_r2(Math.abs(ca - cb))}.` }; },
+  () => { const t = _r(70, 90), c = _r(60, 85), f = _r(65, 95), wt = _pick([50, 40]), wc = _pick([30, 20]), wf = 100 - wt - wc;
+    return { t: `A candidate scores ${t} on technical skills (weight ${wt}%), ${c} on communication (weight ${wc}%) and ${f} on culture fit (weight ${wf}%). What is the weighted score? (2 decimals)`, ans: _r2((t * wt + c * wc + f * wf) / 100), tol: 0.02, why: `(${t} x ${wt} + ${c} x ${wc} + ${f} x ${wf}) / 100 = ${_r2((t * wt + c * wc + f * wf) / 100)}.` }; }
+);
+GEN_SOLVE.senior.push(
+  () => { const A = _r(2, 5), B = _r(3, 6), C = _r(2, 5), D = _r(2, 4);
+    return { t: `A project has four tasks. A takes ${A} days. B takes ${B} days and starts after A. C takes ${C} days and also starts after A. D takes ${D} days and starts only after both B and C are done. What is the shortest total duration in days?`, ans: A + Math.max(B, C) + D, why: `The longest path is A + max(B, C) + D = ${A} + ${Math.max(B, C)} + ${D} = ${A + Math.max(B, C) + D}.` }; },
+  () => { const V = _r(5, 40) * 1000, s = _pick([2, 3, 4, 5]), c = _pick([10, 15, 20, 25]), pr = _pick([20, 30, 40]);
+    return { t: `${_money(V)} people visit a site each month. ${s}% sign up, and ${c}% of those who sign up become paying customers at ${pr} a month. What is the monthly revenue from this group?`, ans: Math.round(V * s / 100 * c / 100 * pr), tol: 0.01, why: `${_money(V)} x ${s}% = ${V * s / 100} sign-ups. x ${c}% = ${V * s / 100 * c / 100} customers. x ${pr} = ${Math.round(V * s / 100 * c / 100 * pr)}.` }; },
+  () => { const d = _r(8, 20) * 100, days = _r(15, 30), cd = Math.round(d * _pick([1.3, 1.5])), mo = _r(2, 4) * 1000 * 10;
+    const contractor = d * days, ft = Math.round(cd / 10) * 10 * 0 + Math.round(mo / 22 * days);
+    return { t: `A contractor costs ${_money(d)} a day and you need them for ${days} working days. A full-time employee costs ${_money(mo)} a month (22 working days) and would also do this work for ${days} days. How much cheaper is the cheaper option for these ${days} days? (nearest whole number)`, ans: Math.abs(Math.round(contractor - mo / 22 * days)), tol: 0.02, why: `Contractor ${_money(contractor)}. Employee ${_money(Math.round(mo / 22 * days))}. The difference is ${_money(Math.abs(Math.round(contractor - mo / 22 * days)))}.` }; }
+);
+GEN_SOLVE.advanced.push(
+  () => { const cs = _r(300, 480) / 10, ctl = _r(2, 4) / 10 * 10, base = _r(30, 50) / 10; const n = _r(1500, 4000), a = _r(35, 50) / 10, up = _pick([10, 15, 20]), b = Math.round(a * (1 + up / 100) * 10) / 10;
+    return { t: `An A/B test: the control converts at ${a}% with ${_money(n)} visitors. The variant converts at ${b}% with ${_money(n)} visitors. What is the relative lift of the variant over the control, in percent? (1 decimal)`, ans: Math.round((b - a) / a * 1000) / 10, tol: 0.05, why: `Lift = (${b} - ${a}) / ${a} = ${Math.round((b - a) / a * 1000) / 10}%. Also check the sample size and statistical significance before shipping.` }; },
+  () => { const a = _pick([99, 99.5, 99.9]), b = _pick([99, 99.5, 99.9]);
+    return { t: `Two services are needed for a request to succeed (in series). One is available ${a}% of the time and the other ${b}%. What is the combined availability in percent? (3 decimals)`, ans: Math.round(a * b / 100 * 1000) / 1000, tol: 0.001, why: `Multiply: ${a / 100} x ${b / 100} = ${Math.round(a * b / 100 * 1000) / 1000}%. Series dependencies lower availability.` }; },
+  () => { const L = _r(10, 60), lam = _r(2, 6) * 10;
+    return { t: `On average ${L} requests are in a system at any moment, and ${lam} new requests arrive per second. Using Little's law, what is the average time a request spends in the system, in milliseconds?`, ans: Math.round(L / lam * 1000), tol: 0.01, why: `Little's law: L = arrival rate x time, so time = ${L} / ${lam} = ${_r2(L / lam)} seconds = ${Math.round(L / lam * 1000)} ms.` }; },
+  () => { const pa = _r(20, 40), pb = _r(10, 30), F = _r(4, 12) * 10000, ma = _r(40, 70), mx = _pick([60, 70]);
+    const blend = pa * mx / 100 + pb * (100 - mx) / 100;
+    return { t: `You sell product A (margin ${pa} per unit) and product B (margin ${pb} per unit) in a ${mx}:${100 - mx} mix. Fixed costs are ${_money(F)}. How many total units (rounded up) must you sell to break even?`, ans: Math.ceil(F / blend), why: `Blended margin = ${pa} x ${mx / 100} + ${pb} x ${(100 - mx) / 100} = ${_r2(blend)} per unit. ${_money(F)} / ${_r2(blend)} = ${_r2(F / blend)}, rounded up to ${Math.ceil(F / blend)}.` }; }
+);
 const GEN_ORDER = { basic: ["basic"], mid: ["mid", "basic"], senior: ["senior", "mid"], advanced: ["advanced", "senior"] };
 function genSolve(level, n) {
-  const out = [], seen = new Set(), tiers = GEN_ORDER[level] || ["basic"];
+  const out = [], seen = new Set(), usedFn = new Set(), tiers = GEN_ORDER[level] || ["basic"];
   let guard = 0;
   while (out.length < n && guard++ < 60) {
-    const tier = tiers[out.length % tiers.length], f = _pick(GEN_SOLVE[tier]);
+    const tier = tiers[out.length % tiers.length], pool = GEN_SOLVE[tier].filter(f => !usedFn.has(f)), f = _pick(pool.length ? pool : GEN_SOLVE[tier]);
+    usedFn.add(f);
     const o = f();
     if (!seen.has(o.t)) { seen.add(o.t); out.push({ type: "solve", t: o.t, ans: o.ans, tol: o.tol, why: o.why }); }
   }

@@ -334,7 +334,7 @@ const BANK = {
   basic:["What is CI/CD?","What is version control and branching?","What is infrastructure as code?"],
   mid:["Walk through a CI/CD pipeline you built.","How do you manage secrets in pipelines?","How do you roll back a bad release?"],
   senior:["How would you define DORA metrics and improve them?","How do you design a release strategy for many services?","How do you build reliability culture (SLOs, on-call, postmortems)?"]}},
- "Testing / QA":{k:["testing","selenium","cypress","jest","junit","qa","automation"],q:{
+ "Testing / QA":{so:true,k:["testing","selenium","cypress","playwright","testng","sdet","test automation","qa engineer","jest","junit","pytest","qa","automation"],q:{
   basic:["What is the difference between unit, integration and end-to-end tests?","What makes a good test case?","What is a bug life cycle?"],
   mid:["How do you reduce flaky tests?","How do you decide what to automate?","Explain mocking vs stubbing."],
   senior:["How would you design a test strategy for a new product?","How do you measure quality beyond coverage?","How do you shift testing left in a team?"]}},
@@ -387,6 +387,40 @@ const BANK = {
   mid:["Explain async/await in C#.","How does dependency injection work in ASP.NET Core?","What is Entity Framework and when to avoid it?"],
   senior:["How would you design a modular .NET backend for scale?","How do you profile and optimize .NET memory and GC?","How do you design for observability in .NET services?"]}}
 };
+
+
+/* Hands-on tasks per skill: written or pseudocode answers, so they work in any language */
+const BANK_P = {
+ "C / C++":{basic:["Write a function that reverses a C string in place. Explain how you handle the null terminator and an empty string.","Write a small class that owns a dynamic int array and show its destructor, copy constructor and copy assignment. Say which of the rule of three or five you applied and why."],
+  mid:["Write a thread-safe bounded queue with std::mutex and std::condition_variable. Explain how producers and consumers block and how shutdown works.","Implement a simple LRU cache in C++ with std::list and std::unordered_map. State the time complexity of get and put.","A factory function returns a raw pointer. Rewrite its interface with smart pointers and explain who owns what."],
+  senior:["Sketch a lock-free single-producer single-consumer ring buffer: data layout, the atomics, the memory order for push and pop, and how you avoid false sharing.","Design a fixed-size memory pool allocator for small objects. Cover alignment, fragmentation, thread safety and how you would test it.","A hot loop is slow. List the measurements you would take (perf, cache misses, branch misses) and 5 optimisations in order, with the trade-off of each."]},
+ "Embedded / Firmware":{basic:["Write the C code to set, clear and toggle bit 3 of a hardware register and check whether bit 5 is set. Explain why volatile matters.","Write the code to debounce a push button read from a GPIO pin. State the timing you chose and why."],
+  mid:["Design a state machine (list the states and transitions in text) for a device that is Off, Booting, Idle, Measuring and in Error. Say how you would test every transition.","Write the C for a ring buffer shared between a UART interrupt and the main loop. Explain how you avoid races without disabling interrupts for long.","You see a CRC mismatch on 1 in 10,000 messages from a sensor. List your first 6 checks in order, with the tool for each."],
+  senior:["Plan secure over-the-air firmware updates for 10,000 devices: signing, rollback, staged rollout and failure handling.","Write the interface specification between a hardware team and a software team for a new sensor: registers, timing, error handling and what each team promises.","Show how you would trace one safety-relevant feature from requirement to design to test, the way ASPICE expects."]},
+ "Concurrency / Low latency":{basic:["Write pseudocode where two threads each add 1 to a shared counter 1,000 times. Show the bug, then fix it in two different ways.","Explain with a small example how a deadlock between two mutexes happens and give two ways to prevent it."],
+  mid:["Design a thread pool: the task queue, the workers, how tasks are submitted and how shutdown works. Write the key code.","Write a producer-consumer pipeline with a bounded buffer. Say what happens when the producer is faster and which metric you would watch."],
+  senior:["A UDP market-data receiver must hand messages to a processing thread with the lowest latency. Design it end to end, including the queue, batching, CPU pinning and how you measure p99 latency.","Compare a mutex-protected queue, a lock-free MPMC queue and a single-producer single-consumer ring for a latency-critical path. Say when you would choose each."]},
+ "Linux / Systems":{basic:["Write a shell pipeline that finds the 5 largest files under a directory and explain each part.","Explain how you would find which process is listening on port 8080 and stop it safely."],
+  mid:["Write a small script that follows a log file and alerts when ERROR appears more than 10 times in a minute. Explain the edge cases.","A server is slow. List the commands you would run in order (CPU, memory, disk, network) and what each result tells you."],
+  senior:["Design a system service that restarts itself, logs safely and handles signals. Cover systemd settings, signal handling and graceful shutdown."]},
+ "Python":{basic:["Write a function that reads a CSV file and returns the average of one column, skipping bad rows. Explain how you handle errors.","Write a function that counts word frequency in a text and returns the top 3 words."],
+  mid:["Write a decorator that retries a function 3 times with a delay and logs each failure. Explain the edge cases.","Design a script that processes a 5 GB log file without loading it into memory. Show the key code and the trade-offs."],
+  senior:["Design a Python service that fetches data from 10,000 URLs reliably. Choose between threads, asyncio and processes and justify it by the bottleneck.","Plan how you would profile and speed up a slow data pipeline in Python."]},
+ "Java":{basic:["Write a Java class for an immutable Point with equals and hashCode. Explain why you override both.","Write a method that finds duplicates in a list of strings with a HashSet and state its complexity."],
+  mid:["Write a thread-safe counter in Java in two ways (synchronized and AtomicInteger) and compare them.","Design a REST endpoint for creating an order with validation and error handling in Spring. Describe the layers and status codes."],
+  senior:["A Java service has long GC pauses at peak load. List how you would diagnose it and 5 fixes in order.","Design a rate limiter for a Java microservice. Compare an in-memory and a Redis-based approach."]},
+ "SQL / Databases":{basic:["Write a query to find the second highest salary in an employees table. Explain your approach.","Write a query that lists customers with more than 3 orders and their total spend."],
+  mid:["A query on a 50 million row table takes 30 seconds. List how you would investigate (explain plans, indexes) and fix it.","Design a schema for an e-commerce order system and say which indexes you would add."],
+  senior:["Plan a zero-downtime migration that splits one large table into two. Give the steps, risks and rollback."]},
+ "Docker / Kubernetes":{mid:["Write a Dockerfile for a small service, then explain how you would shrink the image and keep secrets out of it."],senior:["A pod keeps restarting in production. List your checks in order and what each tells you."]},
+ "DevOps / CI-CD":{mid:["Design a CI pipeline for a service: stages, tests, artifact storage and rollback."],senior:["Plan a safe rollout for a risky change to 200 servers, with monitoring and an abort rule."]},
+ "AWS / Cloud":{mid:["Design a highly available architecture for a web app on AWS and explain how it fails over."],senior:["Your cloud bill doubled in a month. List how you find the cause and the fixes."]},
+ "JavaScript":{basic:["Write a debounce function and explain when you would use it."],mid:["Write code that fetches three APIs in parallel with a timeout and handles one of them failing."]},
+ "React":{mid:["Design a reusable data table component: props, state and how you keep 10,000 rows fast."]},
+ "Testing / QA":{mid:["Design a test plan for a login page: functional, security, performance and accessibility."]},
+ "Machine Learning / Data":{mid:["Plan how you would build and evaluate a model to predict customer churn, from data checks to monitoring."]}
+};
+Object.entries(BANK_P).forEach(([k,v])=>{ if(BANK[k]) BANK[k].p=v; });
 
 /* Software fallbacks when no specific skill is detected */
 const SW_CORE = {
@@ -445,7 +479,7 @@ const kwRe = k => new RegExp("(^|[^a-z0-9])"+k.replace(/[.+#*()?\[\]\\|^$]/g,"\\
 const hits = (low,k) => (low.match(kwRe(k))||[]).length;
 
 /* Words that appear in many resumes without meaning the person works in that area. */
-const WEAK = new Set(["testing","qa","automation","cloud","container","database","express","spring","oracle","s3","lambda","boost","qt","kernel","bash","unix","stl","gcc","cmake","wordpress","helm","cargo"]);
+const WEAK = new Set(["jest","junit","pytest","testing","qa","automation","cloud","container","database","express","spring","oracle","s3","lambda","boost","qt","kernel","bash","unix","stl","gcc","cmake","wordpress","helm","cargo"]);
 function softwareSkills(low){
   const out=[];
   for(const [name,def] of Object.entries(BANK)){
@@ -454,7 +488,7 @@ function softwareSkills(low){
     const head=low.slice(0,400); let hd=0; def.k.forEach(k=>{ if(!WEAK.has(k)) hd+=hits(head,k); });
     const n=strong+weak+hd*3; if(!(strong+weak)) continue;
     /* switched on only with real evidence: a clear skill word, or a weak word used several times */
-    out.push({name,n,off:!(strong>=1||weak>=3)});
+    out.push({name,n,off:def.so?strong<1:!(strong>=1||weak>=3)});
   }
   return out.sort((a,b)=>b.n-a.n);
 }
@@ -589,10 +623,10 @@ function roleTemplates(role){
 
 /* ---------- Plan generation ---------- */
 const SPLIT = {
- fresher:[["intro",5],["core",40],["case",10],["practical",20],["solve",10],["behav",10],["close",5]],
- mid:[["intro",5],["core",35],["case",10],["practical",20],["solve",10],["work",10],["behav",5],["close",5]],
- senior:[["intro",5],["core",30],["case",5],["practical",15],["solve",10],["work",10],["design",15],["behav",5],["close",5]],
- advanced:[["intro",5],["core",25],["practical",15],["solve",10],["design",20],["lead",10],["work",5],["behav",5],["close",5]]
+ fresher:[["intro",5],["core",34],["case",10],["practical",20],["solve",16],["behav",10],["close",5]],
+ mid:[["intro",5],["core",30],["case",10],["practical",20],["solve",15],["work",10],["behav",5],["close",5]],
+ senior:[["intro",5],["core",25],["case",5],["practical",15],["solve",15],["work",10],["design",15],["behav",5],["close",5]],
+ advanced:[["intro",5],["core",20],["practical",15],["solve",15],["design",20],["lead",10],["work",5],["behav",5],["close",5]]
 };
 /* Interview style: shift about 12 points of time toward technical or hands-on work */
 function styleSplit(split,style){
@@ -687,9 +721,14 @@ function buildPlan(level,total){
         qs=take(pool,n); break;}
       case "practical":{
         if(id==="software"){
+          const own=ctx.skills.length>0 && !ctx.skills.some(x=>["JavaScript","React","Node.js"].includes(x.name));
           const pool=[];
-          LVL[level].forEach(l=>shuffle(CODE.filter(p=>p.lvl===l)).forEach(p=>pool.push({type:"code",t:p.title,prob:p})));
-          qs=takeObj(pool,Math.max(1,Math.round(mins/12)));
+          LVL[level].forEach(l=>shuffle(CODE.filter(p=>p.lvl===l)).forEach(p=>pool.push({type:"code",t:p.title,prob:p,own})));
+          const tasks=[];
+          order.forEach(t=>shuffle(top.flatMap(s=>(BANK[s]?.p?.[t]||[]).map(x=>`[${s}] ${x}`))).forEach(x=>tasks.push({type:"task",t:x})));
+          (UNIVERSAL_TASKS[order[0]]||[]).forEach(x=>tasks.push({type:"task",t:x.replace(/\{R\}/g,role)}));
+          const nTot=Math.max(3,Math.round(mins/5)), nCode=own?1:Math.max(1,Math.round(mins/12));
+          qs=[...takeObj(pool,nCode),...takeObj(tasks,Math.max(1,nTot-nCode))];
         } else {
           const own=[], tp=[];
           order.forEach(t=>(PRACTICAL[id]?.[t]||[]).forEach(x=>own.push(x)));
@@ -703,7 +742,7 @@ function buildPlan(level,total){
       case "solve":{
         const pool=[];
         LVL[level].forEach(l=>shuffle(SOLVE.filter(p=>p.lvl===l)).forEach(p=>pool.push({type:"solve",t:p.t,ans:p.ans,tol:p.tol,why:p.why})));
-        const nn=Math.max(3,Math.round(mins/3)), gen=genSolve(level,Math.ceil(nn/2));
+        const nn=Math.max(4,Math.round(mins/2.5)), gen=genSolve(level,Math.ceil(nn*0.6));
         gen.forEach(o=>used.add(o.t));
         const open=takeObj(pool.filter(o=>o.ans===undefined),1);
         qs=[...open,...gen,...takeObj(pool,nn)].slice(0,nn); break;}
@@ -731,7 +770,7 @@ function buildPlan(level,total){
 
 function planItem(q){
   if(typeof q==="string") return `<li>${esc(q)}</li>`;
-  if(q.type==="code") return `<li><span class="tag">Coding</span>${esc(q.t)} <span class="note">solve it in JavaScript to run the tests here; think it through in your own language first</span></li>`;
+  if(q.type==="code") return `<li><span class="tag">Coding</span>${esc(q.t)} <span class="note">${q.own?"write it in your own language; it is scored on approach and explanation, not run":"JavaScript, tests run in your browser"}</span></li>`;
   if(q.type==="task") return `<li><span class="tag">Practical</span>${esc(q.t)}</li>`;
   if(q.type==="solve") return `<li><span class="tag">Reasoning</span>${esc(q.t)}</li>`;
   return `<li>${esc(q.t)} <a href="${esc(q.url)}" target="_blank" rel="noopener">↗</a></li>`;

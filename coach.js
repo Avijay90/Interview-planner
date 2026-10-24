@@ -168,8 +168,13 @@ function showItem() {
   ta.className = isCode ? "code" : "";
   ta.rows = isCode ? 12 : it.type === "task" ? 9 : 7;
   ta.spellcheck = !isCode;
-  ta.placeholder = isCode ? "Write your JavaScript here" : it.type === "task" ? "Write your worked answer here…" : it.type === "solve" ? "Show your working…" : "Type your answer here, as you would say it…";
-  if (isCode && a.code == null) a.code = it.prob.starter;
+  if (isCode && it.own && a.js === undefined) a.js = false;
+  const own = isCode && it.own && !a.js;
+  a.own = own;
+  const ownStarter = `// Write your solution in the language you use (C++, Java, Python, Go...).\n// Problem: ${it.t}\n`;
+  ta.placeholder = isCode ? (own ? "Write your solution in your own language" : "Write your JavaScript here") : it.type === "task" ? "Write your worked answer here…" : it.type === "solve" ? "Show your working…" : "Type your answer here, as you would say it…";
+  if (isCode && a.code == null) a.code = own ? ownStarter : it.prob.starter;
+  if (isCode) a.starter = own ? ownStarter : it.prob.starter;
   ta.value = isCode ? a.code : a.text;
   const wc = () => { const w = $("wc"); if (w) w.textContent = (ta.value.trim() ? ta.value.trim().split(/\s+/).length : 0) + " words"; };
   ta.oninput = () => { if (isCode) a.code = ta.value; else a.text = ta.value; wc(); const fb = $("fuBtn"); if (fb) fb.classList.toggle("hide", !(canFollowUp() && !$("autoFU").checked)); };
@@ -183,21 +188,24 @@ function showItem() {
   if (isCode) {
     const shown = it.prob.tests.slice(0, 2).map(t => `${it.prob.fn}(${t[0].map(x => JSON.stringify(x)).join(", ")}) → ${JSON.stringify(t[1])}`).map(x => x.length > 160 ? x.slice(0, 157) + "…" : x);
     setExtra(`<div class="note">Examples:<br>${shown.map(esc).join("<br>")}</div>
-      <div class="row"><button id="run">Run tests</button><button class="sec" id="reset">Reset code</button></div>
-      <div id="runOut" class="note"></div>
+      ${own ? `<div class="note">Write it in your own language. Tests only run for JavaScript, so this answer is scored on your approach, explanation and complexity.</div>
+      <label class="opt"><input type="checkbox" id="useJs"> I would rather write JavaScript and run the tests</label>`
+      : `<div class="row"><button id="run">Run tests</button><button class="sec" id="reset">Reset code</button></div>
+      <div id="runOut" class="note"></div>${it.own ? `<label class="opt"><input type="checkbox" id="useJs" checked> Writing JavaScript (untick to use your own language)</label>` : ""}`}
       <label for="explain">Explain your approach and its complexity (optional, but it is scored)</label>
       <textarea id="explain" rows="3" placeholder="e.g. I use a hash map to track seen values, so it is O(n) time and O(n) space…"></textarea>`);
     $("explain").value = a.explain;
     $("explain").oninput = e => { a.explain = e.target.value; };
-    $("reset").onclick = () => { ta.value = it.prob.starter; a.code = ta.value; a.tests = null; $("runOut").innerHTML = ""; };
-    $("run").onclick = async () => {
+    if ($("useJs")) $("useJs").onchange = e => { a.js = e.target.checked; a.code = null; a.tests = null; showItem(); };
+    if (!own) $("reset").onclick = () => { ta.value = it.prob.starter; a.code = ta.value; a.tests = null; $("runOut").innerHTML = ""; };
+    if (!own) $("run").onclick = async () => {
       $("run").disabled = true; $("runOut").textContent = "Running…";
       const r = await runTests(a.code, it.prob);
       $("run").disabled = false;
       a.tests = summariseTests(r, it.prob);
       $("runOut").innerHTML = renderTestResult(a.tests);
     };
-    if (a.tests) $("runOut").innerHTML = renderTestResult(a.tests);
+    if (!own && a.tests) $("runOut").innerHTML = renderTestResult(a.tests);
   } else if (it.type === "solve" && it.ans != null) {
     setExtra(`<label for="num">Your answer (a number)</label><input type="text" id="num" inputmode="decimal" placeholder="e.g. 42" autocomplete="off"><div class="note">Then show your working below.</div>${micNote}`, true);
     $("num").value = a.num;
@@ -383,12 +391,23 @@ function parseNum(s) {
 }
 
 function analyseItem(it, a) {
-  const answered = it.type === "code" ? (a.code && a.code !== it.prob.starter) || a.explain.trim() || a.tests
+  const answered = it.type === "code" ? (a.code && a.code !== (a.starter || it.prob.starter)) || a.explain.trim() || a.tests
     : it.type === "solve" && it.ans != null ? String(a.num).trim() || a.text.trim()
     : a.text.trim();
   if (!answered) return { skipped: true, score: null, good: [], fix: [], cat: it.type };
   const good = [], fix = [];
 
+  if (it.type === "code" && a.own) {
+    const code = String(a.code || "").split("\n").filter(l => l.trim() && !/^\s*(\/\/|#|\/\*|\*)/.test(l)), ew = wordsOf(a.explain.trim()).length;
+    let score = code.length >= 4 ? 30 : code.length >= 1 ? 15 : 0;
+    if ((code.join(" ").match(/\b(for|while|if|map|vector|unordered|dict|set|stack|queue|sort|hash|list|array|return)\b/g) || []).length >= 3) { score += 15; good.push("Your code uses real control flow and data structures."); }
+    else fix.push("Show the actual logic: the loop, the data structure and what you return.");
+    if (ew >= 15) { score += 20; good.push("You explained your approach."); } else fix.push("Explain your approach in a few sentences.");
+    if (/o\(|complexity|time|space/i.test(a.explain)) { score += 15; good.push("You stated complexity."); } else fix.push("State the time and space complexity.");
+    if (/empty|null|edge|duplicate|overflow|negative|zero|invalid/i.test(a.explain + " " + a.code)) { score += 10; good.push("You considered edge cases."); } else fix.push("Mention edge cases such as empty input or duplicates.");
+    fix.push("This code was not run. Check it against the examples yourself, or use the AI feedback below for a review.");
+    return { score: Math.round(clamp(Math.min(score, 90))), good, fix, cat: "code" };
+  }
   if (it.type === "code") {
     const t = a.tests, expl = a.explain.trim(), ew = wordsOf(expl).length;
     let score;

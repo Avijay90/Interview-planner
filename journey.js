@@ -84,7 +84,7 @@ const JY = (() => {
     for (let i = sIdx - 1; i >= 0 && rows.length < 3; i--) {
       if (items[i].round !== it.round) break;
       const a = answers[i], x = items[i];
-      const ans = x.type === "code" ? (a.code && a.code !== x.prob.starter ? "(code submitted)" : "") : x.type === "solve" && x.ans != null ? (a.num || a.text) : a.text;
+      const ans = x.type === "code" ? (a.code && a.code !== (a.starter || x.prob.starter) ? "(code submitted)" : "") : x.type === "solve" && x.ans != null ? (a.num || a.text) : a.text;
       rows.unshift(`<div class="msg q"><p>${esc(short(x.type === "code" ? x.t : x.t, 150))}</p></div><div class="msg me"><p>${ans && ans.trim() ? esc(short(ans.trim(), 150)) : "<i>skipped</i>"}</p></div>`);
     }
     return rows.join("");
