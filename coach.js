@@ -22,6 +22,7 @@ function isBehItem(it) {
 }
 
 function hintFor(it) {
+  if (it.fu) return "A follow-up digs into your last answer. Be specific: name the real decision, number or result, and be honest about what did not work.";
   if (it.type === "code") return it.prob.hint || "Start with a simple version that works, then improve its speed. Think about empty input and duplicates.";
   if (it.type === "solve") return it.ans != null ? "Write the steps, do the arithmetic slowly, then check the result against the question." : "State assumptions first, put a number on each step, then sanity-check the answer.";
   if (it.type === "task") return "State your assumptions, work through the steps in order, and finish with how you would check the result.";
@@ -52,12 +53,74 @@ function startSession() {
   sTimerId = setInterval(() => {
     const s = Math.floor((Date.now() - sT0) / 1000);
     $("sTimer").textContent = String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0");
+    tickPressure();
   }, 500);
   showItem();
   $("session").scrollIntoView({ behavior: "smooth" });
 }
 
+/* ---------- Pressure mode: a countdown for every question, no going back ---------- */
+const LIMITS = { talk: 120, task: 240, code: 600, solve: 150 };
+let tOut = false;
+function pressureOn() { return !!($("press") && $("press").checked); }
+function tickPressure() {
+  const q = $("qTimer"); if (!q) return;
+  if (!pressureOn() || !qStart || !items.length) { q.textContent = ""; q.className = "qt"; return; }
+  const it = items[sIdx], lim = it.fu ? 90 : (LIMITS[it.type] || 120);
+  const left = Math.ceil(lim - (Date.now() - qStart) / 1000);
+  q.textContent = left > 0 ? `${Math.floor(left / 60)}:${String(left % 60).padStart(2, "0")} left` : "Time is up";
+  q.className = "qt" + (left <= 15 ? " warn" : "");
+  if (left <= 0 && !tOut) { tOut = true; setTimeout(() => { if (tOut && !$("session").classList.contains("hide")) $("next").click(); }, 1200); }
+}
+
+/* ---------- Follow-up questions: the interviewer reacts to what you said ---------- */
+const FU_ALL_TERMS = () => {
+  const t = new Set();
+  try { Object.values(BANK).forEach(d => d.k.forEach(k => { if (k.length > 3) t.add(k); })); } catch {}
+  try { DOMAINS.forEach(d => (d.kw || []).forEach(k => { if (k.length > 4) t.add(k); })); } catch {}
+  return [...t];
+};
+function ruleFollowUp(it, text) {
+  const low = text.toLowerCase(), opts = [];
+  const num = text.match(/\b\d+(?:\.\d+)?\s?(?:%|x\b|ms\b|us\b|µs|seconds?|hours?|days?|weeks?|months?|users?|customers?|clients?|k\b|million|crore|lakh)/i);
+  if (num) opts.push(`You mentioned ${num[0].trim()}. How did you measure that, and what was the starting point?`);
+  const terms = FU_ALL_TERMS().filter(k => new RegExp("(^|[^a-z0-9])" + k.replace(/[.+#*()?\[\]\\|^$]/g, "\\$&") + "($|[^a-z0-9])").test(low));
+  if (terms.length) { const k = terms[Math.floor(Math.random() * terms.length)]; opts.push(`You mentioned ${k}. Why that choice over the alternatives, and where did it fall short?`); }
+  if (/\b(decided|chose|opted|picked|went with)\b/.test(low)) opts.push("What alternatives did you consider, and why did you reject them?");
+  if (/\bwe\b/.test(low) && !/\bI\b/.test(text)) opts.push("You said 'we' a lot. What exactly did you do yourself?");
+  if (!/\d/.test(text)) opts.push("How did you know it worked? Give me a number or an observable result.");
+  if (text.trim().split(/\s+/).length < 40) opts.push("Can you go deeper with one specific example from your own work?");
+  opts.push("What was the hardest part, and what would you do differently now?", "How would your approach change if the scale or the stakes were ten times bigger?", "What went wrong along the way, and how did you recover?");
+  return opts[Math.floor(Math.random() * Math.min(opts.length, 3))];
+}
+async function makeFollowUp(it, text) {
+  if (CONFIG.WORKER_URL && $("ai") && $("ai").value === "cloud") {
+    try {
+      const ctl = new AbortController(); setTimeout(() => ctl.abort(), 9000);
+      const r = await fetch(CONFIG.WORKER_URL, { method: "POST", signal: ctl.signal, headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mode: "followup", role: curRole(), field: curFieldName(), level: $("level").selectedOptions[0].text, q: it.t.slice(0, 300), a: text.slice(0, 700) }) });
+      if (r.ok) { const j = await r.json(); if (typeof j.followup === "string" && j.followup.length > 10 && j.followup.length < 400) return j.followup.trim(); }
+    } catch {}
+  }
+  return ruleFollowUp(it, text);
+}
+function canFollowUp() {
+  const it = items[sIdx], a = answers[sIdx];
+  return it && !it.fu && (it.type === "talk" || it.type === "task") && !a.fuDone && a.text.trim().split(/\s+/).filter(Boolean).length >= 12;
+}
+async function askFollowUp() {
+  if (!canFollowUp()) return;
+  const it = items[sIdx], a = answers[sIdx]; a.fuDone = true;
+  const btn = $("fuBtn"); btn.disabled = true; btn.textContent = "Thinking…";
+  const q = await makeFollowUp(it, a.text);
+  leaveItem();
+  items.splice(sIdx + 1, 0, { sec: "Follow-up", t: q, type: "talk", fu: true });
+  answers.splice(sIdx + 1, 0, { text: "", num: "", explain: "", code: null, secs: 0, tests: null, hinted: false });
+  sIdx++; showItem();
+}
+
 function leaveItem() {
+  tOut = false;
   if (qStart) answers[sIdx].secs += (Date.now() - qStart) / 1000;
   qStart = 0;
   if (rec) { try { rec.stop(); } catch {} rec = null; $("mic").textContent = "🎤 Dictate"; }
@@ -71,7 +134,9 @@ function showItem() {
   $("sQ").textContent = it.type === "code" ? it.t + ". " + it.prob.prompt : it.t;
   $("sCount").textContent = `Question ${sIdx + 1} of ${items.length}`;
   renderProg();
-  $("prev").disabled = sIdx === 0;
+  tOut = false;
+  $("prev").disabled = sIdx === 0 || pressureOn();
+  const fb = $("fuBtn"); if (fb) { fb.disabled = false; fb.textContent = "Ask me a follow-up"; fb.classList.toggle("hide", !(canFollowUp() && !$("autoFU").checked)); }
   $("next").textContent = sIdx === items.length - 1 ? "Finish & get feedback" : "Next";
 
   // hint
@@ -96,7 +161,7 @@ function showItem() {
   if (isCode && a.code == null) a.code = it.prob.starter;
   ta.value = isCode ? a.code : a.text;
   const wc = () => { const w = $("wc"); if (w) w.textContent = (ta.value.trim() ? ta.value.trim().split(/\s+/).length : 0) + " words"; };
-  ta.oninput = () => { if (isCode) a.code = ta.value; else a.text = ta.value; wc(); };
+  ta.oninput = () => { if (isCode) a.code = ta.value; else a.text = ta.value; wc(); const fb = $("fuBtn"); if (fb) fb.classList.toggle("hide", !(canFollowUp() && !$("autoFU").checked)); };
   ta.onkeydown = isCode ? e => { if (e.key === "Tab") { e.preventDefault(); ta.setRangeText("  ", ta.selectionStart, ta.selectionEnd, "end"); a.code = ta.value; } } : null;
 
   const SRok = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
@@ -203,7 +268,11 @@ function setupMic(btn, ta, upd) {
   };
 }
 
-$("next").onclick = () => { leaveItem(); if (sIdx < items.length - 1) { sIdx++; showItem(); } else finishSession(); };
+$("next").onclick = async () => {
+  if ($("autoFU").checked && canFollowUp() && !tOut) { await askFollowUp(); return; }
+  leaveItem(); if (sIdx < items.length - 1) { sIdx++; showItem(); } else finishSession();
+};
+$("fuBtn").onclick = askFollowUp;
 $("prev").onclick = () => { leaveItem(); if (sIdx > 0) { sIdx--; showItem(); } };
 $("exit").onclick = () => { leaveItem(); finishSession(); };
 

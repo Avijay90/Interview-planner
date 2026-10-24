@@ -25,6 +25,14 @@ When you finish, you get a **feedback report**: an overall score, skill bars (co
 
 **How the scoring works.** The built-in coach is rule based: it looks at length, structure, concrete evidence, relevance to the question, filler words and, for experience questions, the Situation-Action-Result pattern. It also runs code tests and checks numeric answers. It cannot judge whether a domain answer is factually correct. For that, use the optional **AI feedback** button (cloud or in-browser) or a mentor.
 
+## Interview realism features
+
+- **Follow-up questions**: after you answer, the interviewer asks a follow-up based on what you said (a number, a tool, a decision). It works with no setup using built-in rules. With Cloud AI turned on and the updated `worker.js` deployed, the AI writes the follow-up instead. Follow-ups are scored like any other answer. Turn this off with the checkbox in setup.
+- **Job description matching**: paste a job description, and the site compares it with the resume. Skills the job needs but the resume lacks appear as dashed chips and become questions ("how would you get up to speed on X").
+- **Resume probes**: the experience section asks about things an interviewer would notice, such as short stints, a break from work, skills listed as "learning" and numbers you claim.
+- **Pressure mode**: a countdown per question (2 minutes for questions, 4 for practical tasks, 10 for coding), no going back, and the interview moves on when time is up.
+- **Focus and style**: choose which skill leads the technical round, and whether the interview is balanced, more technical or more hands-on.
+
 ## Professions included
 
 Software / IT, Law, Fashion Design, Interior Design, Architecture, Financial Advisory / Wealth, Accounting / Audit / Tax, Marketing, Sales / Business Development, HR / Recruiting, Project / Product Management, UX / Graphic Design, Healthcare / Nursing, Teaching / Education, Electronics / Semiconductor / Embedded / IoT, Engineering (Civil / Mechanical / Electrical), Writing / Journalism, Operations / Supply Chain, Customer Service / Hospitality, plus **Other / General** for anything not listed.

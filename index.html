@@ -126,8 +126,10 @@ ul.tips,#report ul{margin:6px 0;padding-left:20px}
 .good{margin:6px 0;color:var(--good);font-size:14.5px}
 .fix{margin:6px 0;color:var(--warn);font-size:14.5px}
 .aiout{margin-top:10px}
+.qt{margin-right:12px;font-weight:800}.qt.warn{color:var(--warn)}.jdbox{margin-top:12px;border-top:0}.jdbox textarea{margin-top:8px}.skill.gap{border:1.5px dashed var(--mintd)}
 .foot{margin-top:64px;color:var(--mut);font-size:14px;max-width:52ch}
-@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}@media print{.brand,header,#setup,#session,#plan,button,.foot{display:none}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+@media print{.brand,header,#setup,#session,#plan,button,.foot{display:none}}
 </style>
 </head>
 <body>
@@ -148,6 +150,10 @@ ul.tips,#report ul{margin:6px 0;padding-left:20px}
         <svg viewBox="0 0 34 42" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" aria-hidden="true"><path d="M5 2h16l9 9v29H5z"/><path d="M21 2v9h9"/><path d="M11 20h13M11 26h13M11 32h8" stroke-linecap="round"/></svg>
         <span><b id="fileName">Choose or drop your resume</b><span class="note">PDF, DOCX or TXT. Optional, and it stays in your browser.</span></span>
       </label>
+      <details class="jdbox"><summary>Have a job description? Paste it to tailor the interview</summary>
+        <textarea id="jd" rows="6" maxlength="6000" placeholder="Paste the job description here. We compare it with your resume and ask about the skills the job needs."></textarea>
+        <div class="note" id="jdNote"></div>
+      </details>
     </div>
   </div>
 
@@ -172,6 +178,8 @@ ul.tips,#report ul{margin:6px 0;padding-left:20px}
     <div class="reply-s">
       <label for="focus">Start the technical round with</label>
       <select id="focus"><option value="">A mix of everything on my resume</option></select>
+      <label class="opt"><input type="checkbox" id="autoFU" checked> The interviewer asks follow-up questions based on my answers</label>
+      <label class="opt"><input type="checkbox" id="press"> Pressure mode: a countdown for every question and no going back</label>
       <label>Style</label>
       <div class="lens" id="styleCards"></div>
       <select id="style" class="sr" tabindex="-1" aria-hidden="true">
@@ -228,13 +236,13 @@ ul.tips,#report ul{margin:6px 0;padding-left:20px}
 <section class="hide" id="plan"></section>
 
 <section class="hide" id="session">
-  <div class="sbar"><span id="sTitle"></span><span class="timer" id="sTimer">00:00</span></div>
+  <div class="sbar"><span id="sTitle"></span><span><span class="qt" id="qTimer"></span><span class="timer" id="sTimer">00:00</span></span></div>
   <div class="prog" id="prog"></div>
   <div class="ask"><div class="big" id="sQ"></div></div>
   <div class="hint hide" id="hintBox"></div>
   <textarea id="notes" rows="7"></textarea>
   <button id="prev" class="sec">Back</button><button id="next">Next</button>
-  <button id="hintBtn" class="sec hide">Show hint</button><button id="mic" class="sec hide">🎤 Dictate</button>
+  <button id="fuBtn" class="sec hide">Ask me a follow-up</button><button id="hintBtn" class="sec hide">Show hint</button><button id="mic" class="sec hide">🎤 Dictate</button>
   <button id="exit" class="sec">Finish &amp; get feedback</button>
   <div class="note" id="sCount"></div>
 </section>
@@ -414,6 +422,24 @@ function softwareSkills(low){
   }
   return out.sort((a,b)=>b.n-a.n);
 }
+/* Questions an interviewer would raise from the resume itself */
+const MON={jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
+function resumeProbes(){
+  const out=[], text=ctx.text||"";
+  (ctx.all||[]).filter(s=>s.gap&&!ctx.off.has(s.name)).slice(0,3).forEach(s=>out.push(`The job asks for ${s.name}, which is not on your resume. What experience do you have with it, and how would you get up to speed in your first month?`));
+  if(text){
+    const lines=text.split(/\r?\n/).map(l=>l.replace(/\s+/g," ").trim()).filter(Boolean);
+    if(lines.find(l=>/career break|sabbatical|gap year|maternity|family[- ]care|break from work|between jobs/i.test(l))) out.push("Your resume shows a break from work. How did you keep your skills current, and why are you ready to return now?");
+    lines.forEach(l=>{ const m=l.match(/([A-Za-z]{3})[a-z]*\.?\s+(\d{4})\s*[–—-]+\s*([A-Za-z]{3})[a-z]*\.?\s+(\d{4})/);
+      if(m&&MON[m[1].toLowerCase()]!==undefined&&MON[m[3].toLowerCase()]!==undefined){
+        const mo=(+m[4]-+m[2])*12+MON[m[3].toLowerCase()]-MON[m[1].toLowerCase()];
+        if(mo>0&&mo<10&&!/break/i.test(l)) out.push(`Your resume shows a role that lasted about ${mo} months ("${l.slice(0,70)}"). Why did you move on, and what did you achieve in that time?`);
+      } });
+    for(const m of text.matchAll(/([A-Za-z][A-Za-z\-+ \/]{2,40})\s*\((?:learning|beginner|basic)\)/gi)) out.push(`You list ${m[1].trim()} as something you are still learning. How far have you got, and what have you built with it?`);
+    (ctx.projects||[]).filter(l=>/\d+\s?(%|x\b|ms\b|us\b|µs|k\b)|from \d[\d.,]*\s?\w*\s+to\s+\d/i.test(l)).slice(0,2).forEach(l=>out.push(`You say: "${l}". How did you measure that, and what was the starting point?`));
+  }
+  return out;
+}
 /* Real project and achievement lines from the resume, used to ask about the person's own work */
 function projectLines(text){
   const verb=/\b(built|developed|designed|led|implemented|migrated|optimi[sz]ed|delivered|managed|launched|created|drafted|handled|reduced|improved|architected|integrated|automated|negotiated|advised|worked on|responsible for)\b/i;
@@ -462,26 +488,44 @@ function curFieldName(){ return domainOf(ctx.field).name; }
 
 function syncSkills(){
   ctx.skills = (ctx.all||[]).filter(s=>!ctx.off.has(s.name));
-  $("skills").innerHTML = (ctx.all||[]).map(s=>`<button type="button" class="skill ${ctx.off.has(s.name)?"off":""}" data-n="${esc(s.name)}" aria-pressed="${!ctx.off.has(s.name)}">${esc(s.name)}</button>`).join("");
+  $("skills").innerHTML = (ctx.all||[]).map(s=>`<button type="button" class="skill ${ctx.off.has(s.name)?"off":""} ${s.gap?"gap":""}" data-n="${esc(s.name)}" aria-pressed="${!ctx.off.has(s.name)}">${esc(s.name)}</button>`).join("");
   $("skillNote").classList.toggle("hide",!(ctx.all||[]).length);
   const fo=$("focus"), cur=fo.value;
   fo.innerHTML='<option value="">A mix of everything on my resume</option>'+ctx.skills.map(s=>`<option value="${esc(s.name)}">${esc(s.name)}</option>`).join("");
   fo.value=ctx.skills.some(s=>s.name===cur)?cur:"";
 }
+/* Skills the job description asks for, compared with the resume */
+function jdSkills(){
+  const t=($("jd").value||"").toLowerCase(); if(t.trim().length<30) return [];
+  return skillsFor(t,ctx.field).filter(s=>!s.off).slice(0,10);
+}
+function rebuildSkills(keepOff){
+  const prevNames=new Set((ctx.all||[]).map(s=>s.name)), prevOff=ctx.off||new Set();
+  const base=(ctx.base||[]).map(s=>({...s})), by=new Map(base.map(s=>[s.name,s]));
+  const hasResume=!!(ctx.text||"").trim(), jd=jdSkills();
+  jd.forEach(j=>{ const b=by.get(j.name); if(b){ b.inJD=true; b.n+=5; b.off=false; } else { const x={name:j.name,n:3+j.n,jd:true,gap:hasResume}; base.push(x); by.set(j.name,x); } });
+  (ctx.manual||[]).forEach(n=>{ const b=by.get(n); if(b){ b.n=999; b.off=false; } else { const x={name:n,n:999,manual:true}; base.push(x); by.set(n,x); } });
+  base.sort((a,b)=>b.n-a.n);
+  ctx.all=base;
+  ctx.off=new Set(base.filter(s=>keepOff&&prevNames.has(s.name)?prevOff.has(s.name):!!s.off).map(s=>s.name));
+  syncSkills();
+  const gaps=base.filter(s=>s.gap), have=jd.filter(j=>by.get(j.name)&&!by.get(j.name).gap);
+  $("jdNote").textContent=!jd.length?"":hasResume
+    ? `The job asks for ${jd.map(j=>j.name).join(", ")}. ${have.length?"On your resume: "+have.map(j=>j.name).join(", ")+". ":""}${gaps.length?"Not on your resume (dashed chips, we will ask how you would handle them): "+gaps.map(g=>g.name).join(", ")+".":"Your resume covers all of them."}`
+    : `The job asks for ${jd.map(j=>j.name).join(", ")}. Questions will follow these skills.`;
+}
 function addSkill(txt){
   txt=txt.trim(); if(!txt) return;
   const low=txt.toLowerCase(); let name=txt, hit=null;
   if(ctx.field==="software") hit=Object.entries(BANK).find(([n,d])=>n.toLowerCase()===low||d.k.includes(low)||n.toLowerCase().includes(low));
-  if(hit) name=hit[0]; else name=cap(txt.slice(0,40));
-  ctx.all=ctx.all||[]; ctx.off=ctx.off||new Set();
-  const ex=ctx.all.find(s=>s.name===name);
-  if(ex){ ex.n=999; ctx.off.delete(name); } else ctx.all.push({name,n:999});
-  ctx.all.sort((a,b)=>b.n-a.n); syncSkills();
+  name=hit?hit[0]:cap(txt.slice(0,40));
+  ctx.manual=ctx.manual||[]; if(!ctx.manual.includes(name)) ctx.manual.push(name);
+  rebuildSkills(true); ctx.off.delete(name); syncSkills();
 }
 function applyField(id, resetRole){
   ctx.field = id;
   const low = (ctx.text||"").toLowerCase();
-  ctx.all = skillsFor(low,id); ctx.off = new Set(ctx.all.filter(s=>s.off).map(s=>s.name));
+  ctx.base = skillsFor(low,id); ctx.manual = []; rebuildSkills(false);
   ctx.projects = projectLines(ctx.text);
   syncSkills();
   $("field").value = id;
@@ -630,11 +674,12 @@ function buildPlan(level,total){
       case "lead": qs=take(GENERIC.leadership,n); break;
       case "behav": qs=take(GENERIC.behavioral,n); break;
       case "work":{
+        const probes=resumeProbes();
         const mine=(ctx.projects||[]).map(l=>`Your resume says: "${l}". What was your exact contribution, and what was the hardest part?`);
-        if(mine.length){
-          qs=[...take(mine,Math.min(2,Math.max(1,n))),
+        if(mine.length||probes.length){
+          qs=[...take(probes,2),...take(mine,2),
               "What was the hardest decision you made on that work, and what alternatives did you consider?",
-              "How did you measure success, and what would you do differently?"].slice(0,Math.max(2,n)); break; }
+              "How did you measure success, and what would you do differently?"].slice(0,Math.max(4,n)); break; }
         qs=[`Pick the most significant project, case, client or piece of work on your resume${top[0]&&id==="software"?` (ideally one using ${top[0]})`:""}. What was your exact contribution?`,
             "What was the hardest decision you made, and what alternatives did you consider?",
             "How did you measure success, and what would you do differently?"].slice(0,Math.max(1,n)); break;}
@@ -837,6 +882,7 @@ $("gen").onclick=()=>renderPlan($("level").value,+$("dur").value);
 const QUICK=[["software","Software"],["electronics","Electronics and embedded"],["law","Law"],["finance","Finance"],["accounting","Accounting"],["architecture","Architecture"],["interior","Interior design"],["fashion","Fashion"],["design","UX and graphic design"],["marketing","Marketing"],["sales","Sales"],["hr","HR"],["pm","Project management"],["healthcare","Healthcare"],["education","Teaching"],["engineering","Engineering"],["writing","Writing"],["operations","Operations"],["service","Service and hospitality"]];
 $("quick").innerHTML=QUICK.map(([id,l])=>`<button type="button" class="chip" data-id="${id}">${esc(l)}</button>`).join("");
 $("skills").addEventListener("click",e=>{ const b=e.target.closest(".skill"); if(!b) return; const n=b.dataset.n; ctx.off.has(n)?ctx.off.delete(n):ctx.off.add(n); syncSkills(); });
+$("jd").addEventListener("input",()=>{ clearTimeout(ctx.jdT); ctx.jdT=setTimeout(()=>rebuildSkills(true),350); });
 $("skillAdd").addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); e.target.value.split(",").forEach(addSkill); e.target.value=""; } });
 $("skillAdd").addEventListener("change",e=>{ e.target.value.split(",").forEach(addSkill); e.target.value=""; });
 $("quick").addEventListener("click",e=>{ const b=e.target.closest(".chip"); if(!b) return; applyField(b.dataset.id,true); });
