@@ -1,0 +1,15 @@
+{
+  "name": "Interview Planner",
+  "short_name": "Interviews",
+  "description": "Practise a realistic interview for your job, with rounds, follow-up questions and feedback.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#F4F7FB",
+  "theme_color": "#2B4BFF",
+  "icons": [
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png"},
+    {"src": "icon-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}

@@ -10,6 +10,16 @@ const TYPE_HINT = {
   solve: "Problem solving: show your reasoning."
 };
 
+/* ---------- Interview rounds ---------- */
+const ROUNDS = [
+  { id: "screen", name: "Screening call", who: "Maya", role: "Recruiter", intro: "A short, friendly call to check your background and fit." },
+  { id: "tech", name: "Technical round", who: "Dev", role: "Technical interviewer", intro: "Depth in your craft: questions, scenarios, hands-on tasks and reasoning." },
+  { id: "mgr", name: "Hiring manager round", who: "Alex", role: "Hiring manager", intro: "How you work with people, lead and handle pressure." },
+  { id: "hr", name: "HR round", who: "Nina", role: "HR partner", intro: "Expectations, motivation and logistics." }
+];
+const ROUND_OF = { "Introduction": 0, "Experience deep-dive": 0, "Leadership & strategy": 2, "Behavioral": 2, "HR conversation": 3, "Closing": 3 };
+const roundOf = sec => (sec in ROUND_OF ? ROUND_OF[sec] : 1);
+
 function normaliseItem(sec, q) {
   if (typeof q === "string") return { sec, t: q, type: "talk" };
   if (q.type) return { sec, ...q };
@@ -43,7 +53,8 @@ function renderProg() {
 }
 
 function startSession() {
-  items = plan.flatMap(s => s.qs.map(q => normaliseItem(s.title, q)));
+  items = plan.flatMap(s => s.qs.map(q => ({ ...normaliseItem(s.title, q), round: roundOf(s.title) })))
+    .map((it, i) => [it, i]).sort((a, b) => a[0].round - b[0].round || a[1] - b[1]).map(x => x[0]);
   if (!items.length) return;
   answers = items.map(() => ({ text: "", num: "", explain: "", code: null, secs: 0, tests: null, hinted: false }));
   sIdx = 0; sT0 = Date.now(); lastReport = null;
@@ -55,7 +66,7 @@ function startSession() {
     $("sTimer").textContent = String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0");
     tickPressure();
   }, 500);
-  showItem();
+  if (typeof JY !== "undefined") JY.begin(); else showItem();
   $("session").scrollIntoView({ behavior: "smooth" });
 }
 
@@ -114,7 +125,7 @@ async function askFollowUp() {
   const btn = $("fuBtn"); btn.disabled = true; btn.textContent = "Thinking…";
   const q = await makeFollowUp(it, a.text);
   leaveItem();
-  items.splice(sIdx + 1, 0, { sec: "Follow-up", t: q, type: "talk", fu: true });
+  items.splice(sIdx + 1, 0, { sec: "Follow-up", t: q, type: "talk", fu: true, round: it.round });
   answers.splice(sIdx + 1, 0, { text: "", num: "", explain: "", code: null, secs: 0, tests: null, hinted: false });
   sIdx++; showItem();
 }
@@ -135,7 +146,7 @@ function showItem() {
   $("sCount").textContent = `Question ${sIdx + 1} of ${items.length}`;
   renderProg();
   tOut = false;
-  $("prev").disabled = sIdx === 0 || pressureOn();
+  $("prev").disabled = sIdx === 0 || pressureOn() || items[sIdx - 1].round !== it.round;
   const fb = $("fuBtn"); if (fb) { fb.disabled = false; fb.textContent = "Ask me a follow-up"; fb.classList.toggle("hide", !(canFollowUp() && !$("autoFU").checked)); }
   $("next").textContent = sIdx === items.length - 1 ? "Finish & get feedback" : "Next";
 
@@ -270,8 +281,14 @@ function setupMic(btn, ta, upd) {
 
 $("next").onclick = async () => {
   if ($("autoFU").checked && canFollowUp() && !tOut) { await askFollowUp(); return; }
-  leaveItem(); if (sIdx < items.length - 1) { sIdx++; showItem(); } else finishSession();
+  leaveItem(); advance();
 };
+function advance() {
+  if (sIdx >= items.length - 1) { finishSession(); return; }
+  const cur = items[sIdx], nxt = items[sIdx + 1];
+  if (cur.round !== nxt.round && typeof JY !== "undefined") JY.roundBreak(cur.round, nxt.round, () => { sIdx++; showItem(); });
+  else { sIdx++; showItem(); }
+}
 $("fuBtn").onclick = askFollowUp;
 $("prev").onclick = () => { leaveItem(); if (sIdx > 0) { sIdx--; showItem(); } };
 $("exit").onclick = () => { leaveItem(); finishSession(); };

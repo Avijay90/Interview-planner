@@ -10,6 +10,8 @@ Interview preparation for any profession. Upload a resume (PDF, DOCX, TXT), choo
 | `domains.js` | 20 profession banks: detection keywords, roles and question banks. **Must sit next to `index.html`.** |
 | `roles.js` | Directory of about 370 job titles mapped to a field, used for suggestions and detection. **Must sit next to `index.html`.** |
 | `practice.js` | Practical tasks for 18 professions, 14 coding challenges with tests, and 19 reasoning problems. **Must sit next to `index.html`.** |
+| `journey.js` | Rounds, interviewer chat look, spoken questions, progress and badges. **Must sit next to `index.html`.** |
+| `manifest.webmanifest`, `sw.js`, `icon-*.png` | Make the site installable and usable offline |
 | `coach.js` | The interactive interview, the in-browser code runner and the feedback report. **Must sit next to `index.html`.** |
 | `worker.js` | Optional Cloudflare Worker for cloud AI questions and AI feedback |
 
@@ -31,6 +33,11 @@ When you finish, you get a **feedback report**: an overall score, skill bars (co
 - **Job description matching**: paste a job description, and the site compares it with the resume. Skills the job needs but the resume lacks appear as dashed chips and become questions ("how would you get up to speed on X").
 - **Resume probes**: the experience section asks about things an interviewer would notice, such as short stints, a break from work, skills listed as "learning" and numbers you claim.
 - **Pressure mode**: a countdown per question (2 minutes for questions, 4 for practical tasks, 10 for coding), no going back, and the interview moves on when time is up.
+- **Interview rounds**: the interview runs as four rounds with a different interviewer each: screening call (Maya, recruiter), technical round (Dev), hiring manager round (Alex) and HR round (Nina). After each round you see a verdict and your next stop on a journey path.
+- **Chat look and spoken questions**: questions arrive as chat bubbles with a typing indicator, and a short transcript of the round stays above. Tick "Read each question aloud" to hear them with your device's voice (free, built in).
+- **Progress, streaks and badges**: every finished session is saved in your browser. The home page shows readiness, day streak, best score, a score chart and badges. The report adds a skills radar and a comparison with last time. A high score triggers a small confetti burst (skipped if your device asks for reduced motion).
+- **Install as an app**: the site works as an installable app (manifest, icons and a service worker). Android Chrome shows an "Install app" button, and on iPhone use Share, then Add to Home Screen. It also opens offline once visited (AI and web questions need a connection).
+
 - **Focus and style**: choose which skill leads the technical round, and whether the interview is balanced, more technical or more hands-on.
 
 ## Professions included
