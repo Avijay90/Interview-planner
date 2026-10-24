@@ -289,7 +289,8 @@ const BANK = {
  "C / C++":{k:["c++","c/c++","embedded c","c programming","ansi c","stl","cmake","gcc","qt","boost"],q:{
   basic:["What is the difference between a pointer and a reference in C++?","What is the difference between stack and heap memory, and what happens if you forget to free memory?","Explain the difference between struct and class in C++, and between const and constexpr."],
   mid:["Explain RAII and how smart pointers (unique_ptr, shared_ptr) prevent leaks.","What is a virtual function and how does a vtable work? Why make a destructor virtual?","How do move semantics work, and when is a copy avoided?","How do you find and fix a segmentation fault or a data race?"],
-  senior:["How would you design a low-latency, thread-safe component in C++ and avoid false sharing and lock contention?","How do you manage memory layout and cache behaviour for performance-critical code?","How do you keep a large C++ codebase buildable and safe (undefined behaviour, sanitizers, static analysis, ABI)?"]}},
+  senior:["How would you design a low-latency, thread-safe component in C++ and avoid false sharing and lock contention?","How do you manage memory layout and cache behaviour for performance-critical code?","How do you keep a large C++ codebase buildable and safe (undefined behaviour, sanitizers, static analysis, ABI)?"],
+  d:["A C++ service leaks memory slowly in production. How do you find the leak without stopping the service?","Build times grow to 40 minutes. How do you bring them down?","A crash happens only in release builds. How do you debug it?"]}},
  "Go":{k:["golang","go lang","goroutine"],q:{
   basic:["What is a goroutine and how is it different from a thread?","How does Go handle errors?","What is the difference between a slice and an array?"],
   mid:["How do channels and the select statement work?","How do you use context for cancellation and timeouts?","How do you avoid goroutine leaks?"],
@@ -313,7 +314,18 @@ const BANK = {
  "Linux / Systems":{k:["linux","unix","bash","shell scripting","kernel","device driver","posix","systemd"],q:{
   basic:["What is the difference between a process and a thread?","How do file permissions work in Linux?","What does a shell pipe do?"],
   mid:["How does virtual memory work and what is paging?","How do you find which process is using high CPU or memory?","What are signals and how are they handled?"],
-  senior:["How do you debug a kernel panic or a hung system?","How do you tune a Linux system for latency or throughput?","How do you design inter-process communication for a system service?"]}},
+  senior:["How do you debug a kernel panic or a hung system?","How do you tune a Linux system for latency or throughput?","How do you design inter-process communication for a system service?"],
+  d:["A process is stuck and not using CPU. How do you find out what it is waiting on?","Two services must exchange data very fast on one machine. Which IPC would you pick and why?"]}},
+ "Embedded / Firmware":{k:["embedded","firmware","rtos","microcontroller","autosar","aspice","hmi","mqtt","can bus","bsp","device driver","bare metal","hardware-software","hardware software"],q:{
+  basic:["What is the difference between embedded software and application software?","What does the volatile keyword do and why does it matter for hardware registers?","What is an interrupt and what should an interrupt service routine avoid doing?"],
+  mid:["How do you design for real-time constraints and prove a deadline is met?","How do you do bit manipulation safely when reading and writing hardware registers?","How do you debug a problem that only shows up on the target hardware?","Explain a state machine you modelled (for example in UML or Rhapsody) and why that model fitted."],
+  senior:["How do you structure embedded software for safety standards such as ASPICE, and keep requirements, design and tests traceable?","How do you design the boundary between hardware and software, and agree it in an interface specification?","How do you bring up a new board or a debug console from scratch, and what do you check first?"],
+  d:["A device works on the bench but resets randomly in the field. How do you investigate?","You have to add a feature to legacy firmware nobody fully understands. How do you do it safely?","Your data acquisition thread misses its deadline once in a thousand cycles. How do you find the cause?"]}},
+ "Concurrency / Low latency":{k:["multithreading","multithreaded","mutex","mutexes","lock-free","concurrency","thread safety","memory ordering","low latency","low-latency","spsc","socket programming","udp","real-time data"],q:{
+  basic:["What is the difference between a mutex and a semaphore?","What is a race condition? Give an example and a fix.","What is a deadlock and how do you avoid one?"],
+  mid:["How do you decide between a mutex, an atomic and a lock-free structure?","What is false sharing and how do you avoid it?","How does a condition variable work and what is a spurious wakeup?","How do you measure and reduce latency in a data pipeline?"],
+  senior:["Walk me through a lock-free single-producer single-consumer queue: memory ordering, cache lines and the failure cases.","How do you measure end-to-end latency accurately and find the tail-latency causes (p99, p99.9)?","How would you design a UDP market-data receiver that never drops or reorders messages silently?"],
+  d:["Throughput is fine but p99 latency spikes every few seconds. How do you find out why?","A producer thread is faster than the consumer. What are your options and the trade-offs?","You see a rare crash only under heavy load that looks like a data race. How do you prove it and fix it?"]}},
  "C# / .NET":{k:["c#",".net","asp.net","dotnet"],q:{
   basic:["What is the CLR?","Value types vs reference types?","What is LINQ?"],
   mid:["Explain async/await in C#.","How does dependency injection work in ASP.NET Core?","What is Entity Framework and when to avoid it?"],
@@ -363,7 +375,9 @@ async function readFile(f){
     let t="";
     for(let i=1;i<=pdf.numPages;i++){
       const p = await (await pdf.getPage(i)).getTextContent();
-      t += p.items.map(x=>x.str).join(" ")+"\n";
+      let lastY=null;
+      p.items.forEach(x=>{ const y=x.transform?x.transform[5]:0; if(lastY!==null && Math.abs(y-lastY)>2) t+="\n"; else if(lastY!==null) t+=" "; t+=x.str; lastY=y; });
+      t+="\n";
     }
     return t;
   }
@@ -390,8 +404,13 @@ function softwareSkills(low){
 function projectLines(text){
   const verb=/\b(built|developed|designed|led|implemented|migrated|optimi[sz]ed|delivered|managed|launched|created|drafted|handled|reduced|improved|architected|integrated|automated|negotiated|advised|worked on|responsible for)\b/i;
   const seen=new Set(), out=[];
-  for(let l of String(text||"").split(/\r?\n/)){
-    l=l.replace(/^[\s\-*•·▪●○]+/,"").replace(/\s+/g," ").trim();
+  const rows=[];
+  for(const raw of String(text||"").replace(/[●•▪◦■]/g,"\n").split(/\r?\n/)){
+    const t=raw.replace(/\s+/g," ").trim(); if(!t) continue;
+    if(rows.length && /^[a-z(]/.test(t) && !/^(and|or)\s+[A-Z]/.test(t)) rows[rows.length-1]+=" "+t; else rows.push(t);
+  }
+  for(let l of rows){
+    l=l.replace(/^[\s\-*·○]+/,"").trim();
     if(l.length<35||l.length>190||!verb.test(l)||/@|https?:|\+?\d[\d\s-]{8,}/.test(l)) continue;
     const k=l.toLowerCase(); if(seen.has(k)) continue; seen.add(k); out.push(l.replace(/[.;:]+$/,""));
     if(out.length>=8) break;
@@ -505,7 +524,7 @@ function labelFor(id,type){
 
 function buildPlan(level,total){
   const id=ctx.field, d=domainOf(id), role=curRole();
-  const top=ctx.skills.slice(0,3).map(s=>s.name);
+  const top=ctx.skills.slice(0,4).map(s=>s.name);
   const used=new Set();
   let seen={}; try{ seen=JSON.parse(localStorage.getItem("ip_seen")||"{}"); }catch(e){}
   if(Object.keys(seen).length>2500) seen={};
@@ -526,7 +545,7 @@ function buildPlan(level,total){
       case "core":{
         const pool=[];
         if(id==="software"){
-          order.forEach(t=>top.forEach(s=>(BANK[s]?.q[t]||[]).forEach(q=>pool.push(`[${s}] ${q}`))));
+          order.forEach(t=>{ const lists=top.map(s=>(BANK[s]?.q[t]||[]).map(q=>`[${s}] ${q}`)); for(let i=0;i<8;i++) lists.forEach(l=>{ if(l[i]) pool.push(l[i]); }); });
           order.forEach(t=>(SW_CORE[t]||[]).forEach(q=>pool.push(q)));
         } else {
           const own=[], tp=[];
@@ -537,7 +556,7 @@ function buildPlan(level,total){
         qs=take(pool,n); break;}
       case "case":{
         const pool=[];
-        if(id==="software") (GENERIC.problem[level]||[]).forEach(q=>pool.push(q));
+        if(id==="software"){ top.forEach(s=>(BANK[s]?.q.d||[]).forEach(q=>pool.push(`[${s}] ${q}`))); (GENERIC.problem[level]||[]).forEach(q=>pool.push(q)); }
         else {
           const own=[], tp=[];
           order.forEach(t=>(d.case?.[t]||[]).forEach(q=>own.push(q)));
@@ -547,7 +566,7 @@ function buildPlan(level,total){
         qs=take(pool,n); break;}
       case "design":{
         const pool=[];
-        if(id==="software") (GENERIC.design[level==="advanced"?"advanced":"senior"]||[]).forEach(q=>pool.push(q));
+        if(id==="software"){ top.forEach(s=>(BANK[s]?.q.d||[]).forEach(q=>pool.push(`[${s}] ${q}`))); (GENERIC.design[level==="advanced"?"advanced":"senior"]||[]).forEach(q=>pool.push(q)); }
         else { (d.case?.senior||[]).forEach(q=>pool.push(q)); (tpl.case.senior||[]).forEach(q=>pool.push(q)); (d.core?.senior||[]).forEach(q=>pool.push(q)); (tpl.core.senior||[]).forEach(q=>pool.push(q)); }
         qs=take(pool,n); break;}
       case "practical":{
@@ -593,7 +612,7 @@ function buildPlan(level,total){
 
 function planItem(q){
   if(typeof q==="string") return `<li>${esc(q)}</li>`;
-  if(q.type==="code") return `<li><span class="tag">Coding</span>${esc(q.t)} <span class="note">JavaScript, tests run in your browser</span></li>`;
+  if(q.type==="code") return `<li><span class="tag">Coding</span>${esc(q.t)} <span class="note">solve it in JavaScript to run the tests here; think it through in your own language first</span></li>`;
   if(q.type==="task") return `<li><span class="tag">Practical</span>${esc(q.t)}</li>`;
   if(q.type==="solve") return `<li><span class="tag">Reasoning</span>${esc(q.t)}</li>`;
   return `<li>${esc(q.t)} <a href="${esc(q.url)}" target="_blank" rel="noopener">↗</a></li>`;
