@@ -168,6 +168,19 @@ ul.tips,#report ul{margin:6px 0;padding-left:20px}
   </div>
 
   <div class="turn">
+    <p class="ask-s">How should the interview run?</p>
+    <div class="reply-s">
+      <label for="focus">Start the technical round with</label>
+      <select id="focus"><option value="">A mix of everything on my resume</option></select>
+      <label>Style</label>
+      <div class="lens" id="styleCards"></div>
+      <select id="style" class="sr" tabindex="-1" aria-hidden="true">
+        <option value="balanced">Balanced</option><option value="tech">More technical questions</option><option value="hands">More hands-on tasks</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="turn">
     <p class="ask-s">How much experience do you have?</p>
     <div class="reply-s">
       <label for="yrs">Your years of experience (optional, sets the levels below)</label>
@@ -394,7 +407,8 @@ function softwareSkills(low){
   for(const [name,def] of Object.entries(BANK)){
     let strong=0, weak=0;
     def.k.forEach(k=>{ const h=hits(low,k); if(WEAK.has(k)) weak+=h; else strong+=h; });
-    const n=strong+weak; if(!n) continue;
+    const head=low.slice(0,400); let hd=0; def.k.forEach(k=>{ if(!WEAK.has(k)) hd+=hits(head,k); });
+    const n=strong+weak+hd*3; if(!(strong+weak)) continue;
     /* switched on only with real evidence: a clear skill word, or a weak word used several times */
     out.push({name,n,off:!(strong>=1||weak>=3)});
   }
@@ -450,6 +464,9 @@ function syncSkills(){
   ctx.skills = (ctx.all||[]).filter(s=>!ctx.off.has(s.name));
   $("skills").innerHTML = (ctx.all||[]).map(s=>`<button type="button" class="skill ${ctx.off.has(s.name)?"off":""}" data-n="${esc(s.name)}" aria-pressed="${!ctx.off.has(s.name)}">${esc(s.name)}</button>`).join("");
   $("skillNote").classList.toggle("hide",!(ctx.all||[]).length);
+  const fo=$("focus"), cur=fo.value;
+  fo.innerHTML='<option value="">A mix of everything on my resume</option>'+ctx.skills.map(s=>`<option value="${esc(s.name)}">${esc(s.name)}</option>`).join("");
+  fo.value=ctx.skills.some(s=>s.name===cur)?cur:"";
 }
 function addSkill(txt){
   txt=txt.trim(); if(!txt) return;
@@ -492,11 +509,21 @@ function roleTemplates(role){
 
 /* ---------- Plan generation ---------- */
 const SPLIT = {
- fresher:[["intro",5],["core",30],["case",10],["practical",20],["solve",15],["behav",15],["close",5]],
- mid:[["intro",5],["core",25],["case",10],["practical",20],["solve",10],["work",15],["behav",10],["close",5]],
- senior:[["intro",5],["core",20],["case",5],["practical",20],["solve",10],["work",15],["design",15],["behav",5],["close",5]],
- advanced:[["intro",5],["core",15],["practical",20],["solve",10],["design",20],["lead",10],["work",10],["behav",5],["close",5]]
+ fresher:[["intro",5],["core",40],["case",10],["practical",20],["solve",10],["behav",10],["close",5]],
+ mid:[["intro",5],["core",35],["case",10],["practical",20],["solve",10],["work",10],["behav",5],["close",5]],
+ senior:[["intro",5],["core",30],["case",5],["practical",15],["solve",10],["work",10],["design",15],["behav",5],["close",5]],
+ advanced:[["intro",5],["core",25],["practical",15],["solve",10],["design",20],["lead",10],["work",5],["behav",5],["close",5]]
 };
+/* Interview style: shift about 12 points of time toward technical or hands-on work */
+function styleSplit(split,style){
+  if(style==="balanced") return split;
+  const boost=style==="tech"?"core":"practical", other=style==="tech"?"practical":"core";
+  const take=["behav","close","intro","work","lead","solve"];
+  let need=12; const out=split.map(([t,p])=>[t,p]);
+  for(const k of take){ const e=out.find(x=>x[0]===k); if(!e||need<=0) continue; const d=Math.min(need,Math.max(0,e[1]-3)); e[1]-=d; need-=d; }
+  const bo=out.find(x=>x[0]===boost); if(bo) bo[1]+=12-need; else { const o=out.find(x=>x[0]===other); if(o) o[1]+=12-need; }
+  return out;
+}
 const LVL = {fresher:["basic","mid"],mid:["mid","basic"],senior:["senior","mid"],advanced:["advanced","senior"]};
 const shuffle = a => { a=[...a]; for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
 const ORDER = {
@@ -524,7 +551,7 @@ function labelFor(id,type){
 
 function buildPlan(level,total){
   const id=ctx.field, d=domainOf(id), role=curRole();
-  const top=ctx.skills.slice(0,4).map(s=>s.name);
+  const top=ctx.skills.slice(0,6).map(s=>s.name);
   const used=new Set();
   let seen={}; try{ seen=JSON.parse(localStorage.getItem("ip_seen")||"{}"); }catch(e){}
   if(Object.keys(seen).length>2500) seen={};
@@ -536,7 +563,7 @@ function buildPlan(level,total){
   const order=ORDER[level];
   const takeObj=(pool,n)=>{ const out=[]; for(const o of fresh(pool,x=>x.t)){ if(out.length>=n) break; mark(o.t); out.push(o);} return out; };
 
-  const result=SPLIT[level].map(([type,pct])=>{
+  const result=styleSplit(SPLIT[level],$("style").value).map(([type,pct])=>{
     const mins=Math.round(total*pct/100), n=Math.max(1,Math.round(mins/4));
     let qs=[];
     switch(type){
@@ -545,7 +572,14 @@ function buildPlan(level,total){
       case "core":{
         const pool=[];
         if(id==="software"){
-          order.forEach(t=>{ const lists=top.map(s=>(BANK[s]?.q[t]||[]).map(q=>`[${s}] ${q}`)); for(let i=0;i<8;i++) lists.forEach(l=>{ if(l[i]) pool.push(l[i]); }); });
+          const fo=$("focus").value, mine=s=>s===fo;
+          order.forEach(t=>{
+            const own=shuffle(top.filter(mine).flatMap(s=>(BANK[s]?.q[t]||[]).map(q=>`[${s}] ${q}`)));
+            const rest=shuffle(top.filter(s=>!mine(s)).flatMap(s=>(BANK[s]?.q[t]||[]).map(q=>`[${s}] ${q}`)));
+            /* with a focus skill, about half of the technical questions come from it */
+            if(own.length){ for(let i=0;i<Math.max(own.length,rest.length);i++){ if(own[i]) pool.push(own[i]); if(rest[i]) pool.push(rest[i]); } }
+            else rest.forEach(q=>pool.push(q));
+          });
           order.forEach(t=>(SW_CORE[t]||[]).forEach(q=>pool.push(q)));
         } else {
           const own=[], tp=[];
@@ -553,7 +587,9 @@ function buildPlan(level,total){
           order.forEach(t=>(tpl.core[t]||[]).forEach(q=>tp.push(q)));
           (id==="general"?[...tp,...own]:[...own,...tp]).forEach(q=>pool.push(q));
         }
-        qs=take(pool,n); break;}
+        const nq=Math.max(3,Math.round(mins/2.5)), fo=id==="software"?$("focus").value:"";
+        const lead=fo?take(pool.filter(q=>q.startsWith("["+fo+"]")),Math.ceil(nq/2)):[];
+        qs=[...lead,...take(pool,nq-lead.length)]; break;}
       case "case":{
         const pool=[];
         if(id==="software"){ top.forEach(s=>(BANK[s]?.q.d||[]).forEach(q=>pool.push(`[${s}] ${q}`))); (GENERIC.problem[level]||[]).forEach(q=>pool.push(q)); }
@@ -808,6 +844,7 @@ function markQuick(){ document.querySelectorAll("#quick .chip").forEach(b=>{ con
 
 const GROUPS=[
  ["level","levelCards","rung",[]],
+ ["style","styleCards","len",[["balanced","Balanced"],["tech","More technical"],["hands","More hands-on"]]],
  ["dur","lenCards","len",[["30","30 min"],["45","45 min"],["60","60 min"],["90","90 min"]]],
  ["ai","modeCards","mode",[["none","Built-in questions only","Always works, no setup."],["cloud","Cloud AI","Fresh questions for your exact job. Fast, and works on phones."],["local","In-browser AI","Runs on your device and stays private. About 1 GB the first time, and needs a recent desktop browser."]]]
 ];
