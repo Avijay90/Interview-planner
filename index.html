@@ -183,6 +183,9 @@ ul.tips,#report ul{margin:6px 0;padding-left:20px}
         <textarea id="jd" rows="6" maxlength="6000" placeholder="Paste the job description here. We compare it with your resume and ask about the skills the job needs."></textarea>
         <div class="note" id="jdNote"></div>
       </details>
+      <label for="company">Company you are interviewing with (optional)</label>
+      <input type="text" id="company" maxlength="60" placeholder="For example Acme Corp. We look for questions candidates reported there.">
+      <div class="note">Only the company name and your job title are sent to look up reported questions. Never your resume.</div>
     </div>
   </div>
 
@@ -273,6 +276,7 @@ ul.tips,#report ul{margin:6px 0;padding-left:20px}
   <div id="chatLog"></div>
   <div class="who"><span class="av" id="av"></span><span><b id="whoName"></b><small id="whoRole"></small></span><button type="button" class="link hide" id="speak">Hear it</button></div>
   <div class="ask"><div class="big" id="sQ"></div></div>
+  <div class="note hide" id="srcNote"></div>
   <div class="hint hide" id="hintBox"></div>
   <textarea id="notes" rows="7"></textarea>
   <button id="prev" class="sec">Back</button><button id="next">Next</button>
@@ -774,6 +778,7 @@ function planItem(q){
   if(q.type==="code") return `<li><span class="tag">Coding</span>${esc(q.t)} <span class="note">${q.own?"write it in your own language; it is scored on approach and explanation, not run":"JavaScript, tests run in your browser"}</span></li>`;
   if(q.type==="task") return `<li><span class="tag">Practical</span>${esc(q.t)}</li>`;
   if(q.type==="solve") return `<li><span class="tag">Reasoning</span>${esc(q.t)}</li>`;
+  if(q.rep) return `<li><span class="tag">Reported</span>${esc(q.t)} <a href="${esc(q.url)}" target="_blank" rel="noopener">${esc(q.src||"source")} ↗</a></li>`;
   return `<li>${esc(q.t)} <a href="${esc(q.url)}" target="_blank" rel="noopener">↗</a></li>`;
 }
 
@@ -796,6 +801,7 @@ async function renderPlan(level,total){
   $("plan").scrollIntoView({behavior:"smooth"});
   const notes=[], jobs=[];
   const ai=$("ai").value;
+  if($("company").value.trim().length>=2) jobs.push(addCompany().then(m=>notes.push(m)).catch(e=>notes.push("Company lookup unavailable: "+e.message)));
   if(ai!=="none") jobs.push(addAI(ai,total).then(m=>notes.push(m)).catch(e=>notes.push("AI unavailable: "+e.message)));
   if($("web").checked) jobs.push(addWeb(level).then(m=>notes.push(m)).catch(e=>notes.push("Web sources unavailable: "+e.message)));
   if(!jobs.length) return;
@@ -869,6 +875,18 @@ async function seSearch(params,prefix){
   return (j.items||[]).map(i=>({t:prefix+dec(i.title),url:i.link}));
 }
 
+async function addCompany(){
+  const company=$("company").value.trim().slice(0,60);
+  if(!CONFIG.WORKER_URL) throw new Error("cloud AI is not set up");
+  const ctl=new AbortController(); setTimeout(()=>ctl.abort(),25000);
+  const r=await fetch(CONFIG.WORKER_URL,{method:"POST",signal:ctl.signal,headers:{"Content-Type":"application/json"},body:JSON.stringify({mode:"company",company,role:curRole()})});
+  const j=await r.json().catch(()=>({}));
+  if(r.status===501) throw new Error("not set up in Cloudflare yet (see README)");
+  if(!r.ok) throw new Error(j.note||"server returned "+r.status);
+  if(!(j.items||[]).length) return j.note||`No reported questions found for ${company}`;
+  plan.splice(1,0,{title:"Reported at "+company,mins:0,qs:j.items.map(x=>({t:x.q,url:x.url,rep:true,src:x.host,date:x.date}))});
+  return `${j.items.length} questions reported by candidates for ${company}${j.cached?" (saved result)":""}`;
+}
 async function addWeb(level){
   const id=ctx.field, d=domainOf(id), jobs=[];
   if(id==="software"){

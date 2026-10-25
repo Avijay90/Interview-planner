@@ -52,7 +52,7 @@ function draw(d) {
   const days = []; for (let i = 29; i >= 0; i--) { const t = new Date(Date.now() - i * 864e5).toISOString().slice(0, 10); days.push([t, (d.days || {})[t] || { s: 0, c: 0 }]); }
   const mx = Math.max(1, ...days.map(x => x[1].s)), today = days[days.length - 1][1], week = days.slice(-7).reduce((a, x) => a + x[1].c, 0);
   $("out").innerHTML = `<div class="tiles"><div class="tile"><b>${d.c || 0}</b><small>Interviews finished</small></div><div class="tile"><b>${d.s || 0}</b><small>Interviews started</small></div><div class="tile"><b>${d.s ? Math.round((d.c || 0) / d.s * 100) : 0}%</b><small>Finish rate</small></div></div>
-  <p class="note">Today: ${today.s} started, ${today.c} finished. Last 7 days: ${week} finished.</p>
+  <p class="note">Today: ${today.s} started, ${today.c} finished. Last 7 days: ${week} finished.</p><p class="note">Company lookups used today: ${d.lookupsToday || 0} of 50 (the daily cap).</p>
   <h2>Started per day, last 30 days</h2><div class="bars">${days.map(([t, v]) => `<div class="col" title="${t}: ${v.s} started, ${v.c} finished"><i style="height:${Math.round(v.s / mx * 100)}%"></i></div>`).join("")}</div>
   ${list("Fields finished", d.fields)}${list("Levels finished", d.levels)}`;
 }

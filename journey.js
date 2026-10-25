@@ -96,6 +96,9 @@ const JY = (() => {
     $("whoName").textContent = R.who;
     $("whoRole").textContent = it.fu ? R.role + ", follow-up" : R.role;
     $("chatLog").innerHTML = transcript(it);
+    const sn = $("srcNote");
+    if (it.rep) { sn.innerHTML = `Reported by a candidate${it.date ? " in " + esc(it.date.slice(0, 4)) : ""} on <a href="${esc(it.url)}" target="_blank" rel="noopener">${esc(it.src || "the web")}</a>. Not verified, and it may be out of date.`; sn.classList.remove("hide"); }
+    else sn.classList.add("hide");
     const full = $("sQ").textContent, my = ++token;
     const sp = $("speak"); sp.classList.toggle("hide", !("speechSynthesis" in window));
     sp.onclick = () => speak(full);

@@ -23,7 +23,7 @@ const roundOf = sec => (sec in ROUND_OF ? ROUND_OF[sec] : 1);
 function normaliseItem(sec, q) {
   if (typeof q === "string") return { sec, t: q, type: "talk" };
   if (q.type) return { sec, ...q };
-  return { sec, t: q.t, type: "talk", url: q.url };
+  return { sec, t: q.t, type: "talk", url: q.url, rep: q.rep, src: q.src, date: q.date };
 }
 
 /* ---------- Session ---------- */

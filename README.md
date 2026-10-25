@@ -91,6 +91,20 @@ Setup (about 3 minutes, in Cloudflare):
 
 Limits to know: the free KV plan allows about 1,000 writes a day, and each interview uses two (start and finish), so roughly 500 interviews a day are counted accurately. Counts are approximate when several people finish at the very same moment. `stats.html` is not linked from the site, but anyone with the key can open it, so keep the key private.
 
+## Questions reported by candidates at a company (optional)
+
+Type a company name in setup and the site looks for interview questions that candidates posted online for that company and your job title (Glassdoor, Reddit, LeetCode, GeeksforGeeks, AmbitionBox, Blind, Quora, Indeed, Medium, DEV). They appear as a "Reported at <company>" section, each with a link to its source, and they are asked in the interview with a note that they are unverified.
+
+How it stays honest: the Worker searches with Exa, the AI only extracts questions that appear in the pages, and a check then rejects any question whose words are not really in the page. If nothing is found, it says so. It never invents "reported" questions.
+
+Setup (needs the KV counter setup above, because the same storage keeps the cache and the daily cap):
+
+1. Create a free account at exa.ai and create an API key in its dashboard.
+2. In Cloudflare open your Worker, **Settings → Variables and secrets → Add**, type **Secret**, name `EXA_KEY`, value your key. Save and deploy.
+3. Paste the new `worker.js` into the Worker and deploy.
+
+Safeguards for the free credits: the same company and job title is served from a saved result for 7 days, at most 50 new searches run per day across the whole site (`MAX_LOOKUPS_PER_DAY` in `worker.js`), and if the key is out of credit the interview simply continues without this section. `stats.html` shows how many lookups were used today. Only the company name and job title are sent; never the resume.
+
 ## Privacy
 
 - The resume is parsed in the browser.
