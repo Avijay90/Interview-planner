@@ -53,6 +53,7 @@ const JY = (() => {
       <div><h2>${esc(R.name)}</h2><p class="note">Round ${rs.indexOf(r) + 1} of ${rs.length}. You meet ${esc(R.who)}, ${esc(R.role.toLowerCase())}. ${esc(R.intro)} About ${n} question${n === 1 ? "" : "s"}.</p></div></div>`;
   }
   function begin() {
+    track("start");
     results = {};
     const r = items[0].round;
     showCard(introHtml(r) + `<button id="rcGo">Start the ${esc(ROUNDS[r].name.toLowerCase())}</button>`);
@@ -170,6 +171,7 @@ const JY = (() => {
     _render(rep);
     if (rep.overall == null || rep._jy) return;
     rep._jy = true;
+    track("done", { field: curFieldName(), level: $("level").selectedOptions[0].text });
     const rs = presentRounds(), res = {};
     rs.forEach(r => { const q = roundScore(r), v = verdict(q.score, ROUNDS[r].who); res[r] = { ...v, score: q.score }; });
     const cleared = rs.length > 0 && rs.every(r => res[r].key === "pass");
@@ -198,6 +200,21 @@ const JY = (() => {
     let t = 0;
     (function f() { g.clearRect(0, 0, c.width, c.height); ps.forEach(p => { p.y += p.v; p.x += Math.sin((p.y + p.r) / 20); g.fillStyle = p.c; g.fillRect(p.x, p.y, p.s, p.s * 0.6); }); if (++t < 150) requestAnimationFrame(f); else c.remove(); })();
   }
+
+  /* ---------- Anonymous interview counter (only event type, field and level are sent) ---------- */
+  const dnt = navigator.doNotTrack === "1" || window.doNotTrack === "1";
+  function track(event, extra) {
+    if (!CONFIG.WORKER_URL || dnt) return;
+    try { fetch(CONFIG.WORKER_URL, { method: "POST", keepalive: true, headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mode: "hit", event, ...extra }) }).catch(() => {}); } catch {}
+  }
+  function showCount() {
+    if (!CONFIG.WORKER_URL) return;
+    fetch(CONFIG.WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mode: "count" }) })
+      .then(r => r.ok ? r.json() : null).then(d => {
+        if (d && d.completed >= 0 && d.started > 0) { $("pubCount").textContent = `${d.started.toLocaleString()} interviews started and ${d.completed.toLocaleString()} finished on this site so far.`; $("pubCount").classList.remove("hide"); }
+      }).catch(() => {});
+  }
+  showCount();
 
   /* ---------- App install ---------- */
   let deferred = null;

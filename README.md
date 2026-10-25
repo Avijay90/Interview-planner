@@ -10,6 +10,7 @@ Interview preparation for any profession. Upload a resume (PDF, DOCX, TXT), choo
 | `domains.js` | 20 profession banks: detection keywords, roles and question banks. **Must sit next to `index.html`.** |
 | `roles.js` | Directory of about 370 job titles mapped to a field, used for suggestions and detection. **Must sit next to `index.html`.** |
 | `practice.js` | Practical tasks for 18 professions, 14 coding challenges with tests, and 19 reasoning problems. **Must sit next to `index.html`.** |
+| `stats.html` | Private page that shows the interview counts (needs the admin key) |
 | `journey.js` | Rounds, interviewer chat look, spoken questions, progress and badges. **Must sit next to `index.html`.** |
 | `manifest.webmanifest`, `sw.js`, `icon-*.png` | Make the site installable and usable offline |
 | `coach.js` | The interactive interview, the in-browser code runner and the feedback report. **Must sit next to `index.html`.** |
@@ -75,6 +76,20 @@ The built-in banks, free web sources and in-browser AI already work at this poin
 4. Copy the Worker URL (`https://<name>.<account>.workers.dev`) into `CONFIG.WORKER_URL` near the top of the script in `index.html`, then commit.
 
 The free tier has a daily allowance that can change; when it runs out the page falls back to the built-in and web questions and shows a message.
+
+## Counting interviews (free)
+
+The site counts how many interviews are started and finished, anonymously. Only the event, the field name and the level are sent. No resume, answers or name, and nothing is sent if the visitor has Do Not Track on. The count is shown at the bottom of the site, and you see the full numbers on `stats.html`.
+
+Setup (about 3 minutes, in Cloudflare):
+
+1. **Workers & Pages → KV → Create a namespace**, name it `interview-stats`.
+2. Open your Worker, then **Settings → Bindings → Add → KV namespace**. Variable name `STATS`, choose `interview-stats`, save.
+3. **Settings → Variables and secrets → Add**. Type **Secret**, name `ADMIN_KEY`, value any long password you invent. Save and deploy.
+4. Paste the new `worker.js` into the Worker (**Edit code**) and deploy.
+5. Open `https://<username>.github.io/<repo>/stats.html` and enter the admin key.
+
+Limits to know: the free KV plan allows about 1,000 writes a day, and each interview uses two (start and finish), so roughly 500 interviews a day are counted accurately. Counts are approximate when several people finish at the very same moment. `stats.html` is not linked from the site, but anyone with the key can open it, so keep the key private.
 
 ## Privacy
 

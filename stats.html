@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Interview counts</title>
+<style>
+:root{--paper:#F4F7FB;--surface:#fff;--ink:#12203A;--mut:#56637F;--line:#D8E0EE;--cobalt:#2B4BFF;--mint:#CFF4E0}
+@media(prefers-color-scheme:dark){:root{--paper:#0C1428;--surface:#142040;--ink:#EAF0FF;--mut:#9AA8CB;--line:#2A3963;--cobalt:#4764FF;--mint:#1B5E48}}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}
+main{max-width:640px;margin:0 auto;padding:24px 18px 60px}h1{font-size:1.7rem;margin:0 0 4px}.note{color:var(--mut);font-size:14.5px}
+input{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);font:inherit;margin:10px 0}
+button{padding:12px 20px;border:0;border-radius:12px;background:var(--cobalt);color:#fff;font:700 16px system-ui;cursor:pointer}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0}.tile{padding:14px;background:var(--surface);border:1.5px solid var(--line);border-radius:14px}
+.tile b{display:block;font-size:1.9rem;line-height:1.1}.tile small{color:var(--mut);font-size:13px}
+h2{font-size:1.1rem;margin:26px 0 8px}.bars{display:flex;align-items:flex-end;gap:4px;height:120px;padding:6px 0;border-bottom:1.5px solid var(--line)}
+.col{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;min-width:0}.col i{display:block;width:100%;background:var(--cobalt);border-radius:3px 3px 0 0;min-height:2px}.col span{font-size:10px;color:var(--mut);margin-top:3px}
+.row{display:grid;grid-template-columns:1fr 70px 40px;gap:8px;align-items:center;margin:6px 0;font-size:15px}.bar{height:8px;border-radius:4px;background:var(--line);overflow:hidden}.bar i{display:block;height:100%;background:var(--cobalt)}.row b{text-align:right}
+.err{color:#A8480A}
+</style>
+</head>
+<body>
+<main>
+<h1>Interview counts</h1>
+<p class="note">Private page for the site owner. Enter the admin key you set in Cloudflare. It is kept only in this tab.</p>
+<form id="f"><input type="password" id="key" placeholder="Admin key" autocomplete="current-password" required><button>Show counts</button></form>
+<p class="err" id="err"></p>
+<div id="out"></div>
+</main>
+<script>
+const WORKER_URL = "https://interview-ai.toankurvijay-90.workers.dev";
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+try { const k = sessionStorage.getItem("ik"); if (k) { $("key").value = k; load(); } } catch {}
+$("f").onsubmit = e => { e.preventDefault(); load(); };
+async function load() {
+  $("err").textContent = ""; const key = $("key").value;
+  try {
+    const r = await fetch(WORKER_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mode: "stats", key }) });
+    const d = await r.json();
+    if (!r.ok) { $("err").textContent = r.status === 403 ? "Wrong key." : r.status === 501 ? "Counting is not set up in Cloudflare yet (see README)." : "Could not load counts (" + r.status + ")."; return; }
+    try { sessionStorage.setItem("ik", key); } catch {}
+    draw(d);
+  } catch (e) { $("err").textContent = "Could not reach the Worker. Check your connection."; }
+}
+function list(title, obj) {
+  const rows = Object.entries(obj || {}).sort((a, b) => b[1] - a[1]).slice(0, 12), max = rows.length ? rows[0][1] : 1;
+  return `<h2>${title}</h2>` + (rows.length ? rows.map(([k, v]) => `<div class="row"><span>${esc(k)}</span><div class="bar"><i style="width:${Math.round(v / max * 100)}%"></i></div><b>${v}</b></div>`).join("") : `<p class="note">Nothing yet.</p>`);
+}
+function draw(d) {
+  const days = []; for (let i = 29; i >= 0; i--) { const t = new Date(Date.now() - i * 864e5).toISOString().slice(0, 10); days.push([t, (d.days || {})[t] || { s: 0, c: 0 }]); }
+  const mx = Math.max(1, ...days.map(x => x[1].s)), today = days[days.length - 1][1], week = days.slice(-7).reduce((a, x) => a + x[1].c, 0);
+  $("out").innerHTML = `<div class="tiles"><div class="tile"><b>${d.c || 0}</b><small>Interviews finished</small></div><div class="tile"><b>${d.s || 0}</b><small>Interviews started</small></div><div class="tile"><b>${d.s ? Math.round((d.c || 0) / d.s * 100) : 0}%</b><small>Finish rate</small></div></div>
+  <p class="note">Today: ${today.s} started, ${today.c} finished. Last 7 days: ${week} finished.</p>
+  <h2>Started per day, last 30 days</h2><div class="bars">${days.map(([t, v]) => `<div class="col" title="${t}: ${v.s} started, ${v.c} finished"><i style="height:${Math.round(v.s / mx * 100)}%"></i></div>`).join("")}</div>
+  ${list("Fields finished", d.fields)}${list("Levels finished", d.levels)}`;
+}
+</script>
+</body>
+</html>
